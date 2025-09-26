@@ -1,0 +1,24 @@
+# Build results
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Temporary/other
+*.db
+*.db-*
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+
