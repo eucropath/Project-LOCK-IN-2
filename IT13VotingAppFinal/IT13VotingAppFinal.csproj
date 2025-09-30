@@ -201,5 +201,17 @@
   <ItemGroup>
     <None Include="Resources\Radiant Blue Burst Pattern.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LOGIN BACK ACK.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\voterdash bg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\vOTER bG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AdminDash Bg.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

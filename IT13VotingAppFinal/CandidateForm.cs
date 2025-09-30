@@ -118,7 +118,7 @@ namespace IT13VotingAppFinal
             try
             {
                 DataAccess.ExecuteProcedureNonQuery("sp_DeleteCandidate",
-                    new MySqlParameter("@CandidateID", candidateID)
+                    new MySqlParameter("@p_CandidateID", candidateID)
                 );
                 LoadCandidates();
                 ClearFields();

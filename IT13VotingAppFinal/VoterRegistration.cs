@@ -126,8 +126,8 @@ namespace IT13VotingAppFinal
                     new MySqlParameter("@LastName", txtLastName.Text.Trim()),
                     new MySqlParameter("@Email", txtEmail.Text.Trim()),
                     new MySqlParameter("@Username", txtUsername.Text.Trim()),
-                    new MySqlParameter("@PasswordHash", passwordHash)
-                );
+                    new MySqlParameter("@PasswordHash", passwordHash));
+                    new MySqlParameter("@Role", "Voter");
 
                 if (rowsAffected > 0)
                 {

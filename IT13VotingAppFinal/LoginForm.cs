@@ -32,7 +32,7 @@ namespace IT13VotingAppFinal
 
             try
             {
-                var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetVoterByUsername",
+                var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetUserByUsername",
                     new MySqlParameter("@in_username", username));
 
                 if (dt.Rows.Count == 0)
@@ -203,12 +203,16 @@ namespace IT13VotingAppFinal
         private void StyleLabel(Label lbl, string text, int x, int y)
         {
             lbl.Text = text;
-            lbl.Font = new Font("Segoe UI", 12, FontStyle.Regular);
+            lbl.Font = new Font("Segoe UI", 12, FontStyle.Regular);// Font size here
             lbl.ForeColor = ColorTranslator.FromHtml("#0A2E5C");
-            lbl.BackColor = Color.Transparent;
+            lbl.BackColor = Color.Transparent; // ✅ no background
             lbl.AutoSize = true;
             lbl.Location = new Point(x, y);
 
+            if (pictureBox1 != null)
+            {
+                lbl.Parent = pictureBox1; // ✅ overlay on background image
+            }
         }
 
         private void CenterControls()
@@ -246,4 +250,4 @@ namespace IT13VotingAppFinal
             btnExit.Top = buttonsTop;
         }
     }
-    }
+}

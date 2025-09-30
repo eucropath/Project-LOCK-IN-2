@@ -130,6 +130,7 @@
             // 
             // pictureBox1
             // 
+            this.pictureBox1.Image = global::IT13VotingAppFinal.Properties.Resources.LOGIN_BACK_ACK;
             this.pictureBox1.Location = new System.Drawing.Point(439, 76);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(100, 50);

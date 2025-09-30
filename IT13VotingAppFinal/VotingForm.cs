@@ -14,17 +14,25 @@ namespace IT13VotingAppFinal
     public partial class VotingForm : Form
     {
         private Form voterDashboard;
+        private int _loggedInVoterId;
+        private int voterId;
 
         public VotingForm(Form dashboard)
         {
             InitializeComponent();
+            _loggedInVoterId = voterId;
             voterDashboard = dashboard;
             LoadPositions();
             LoadCandidates();
             cmbPositions.SelectedIndexChanged += cmbPositions_SelectedIndexChanged;
 
             this.Load += VotingForm_Load;
+            
         }
+
+
+
+   
 
         private void btnCastVote_Click(object sender, EventArgs e)
         {
@@ -33,26 +41,23 @@ namespace IT13VotingAppFinal
                 MessageBox.Show("Select a candidate.");
                 return;
             }
-            string vnum = txtVoterNumber.Text.Trim();
-            if (string.IsNullOrEmpty(vnum)) { MessageBox.Show("Enter voter number."); return; }
-
             try
             {
-                var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetVoterByNumber",
-                    new MySqlParameter("@in_vnum", vnum));
-                if (dt.Rows.Count == 0) { MessageBox.Show("Voter not found."); return; }
-                int voterId = Convert.ToInt32(dt.Rows[0]["VoterID"]);
+                // Validate voter from database (optional)
+                var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetVoterByID",
+                    new MySqlParameter("@in_voterid", _loggedInVoterId));
 
+                if (dt.Rows.Count == 0)
+                {
+                    MessageBox.Show("Voter not found.");
+                    return;
+                }
                 int candidateId = Convert.ToInt32(dgvCandidates.CurrentRow.Cells["CandidateID"].Value);
-
-                // Call transactional stored procedure
                 DataAccess.ExecuteProcedureNonQuery("sp_CastVote",
-                    new MySqlParameter("@in_voterid", voterId),
-                    new MySqlParameter("@in_candidateid", candidateId)
-                );
+            new MySqlParameter("@in_voterid", _loggedInVoterId),
+            new MySqlParameter("@in_candidateid", candidateId));
 
                 MessageBox.Show("Vote cast successfully.");
-                // refresh UI, mark voter as voted etc.
             }
             catch (MySqlException mex)
             {
@@ -93,6 +98,7 @@ namespace IT13VotingAppFinal
         private void LoadCandidates()
         {
             var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetAllCandidates");
+            MessageBox.Show(dt.Rows.Count.ToString());
             dgvCandidates.DataSource = dt;
 
             // Fill ComboBox with candidates (showing full name and position)
@@ -126,12 +132,11 @@ namespace IT13VotingAppFinal
             label1.AutoSize = true;
 
             // === Labels ===
-            StyleLabel(label2, "Voter Number:");
+            StyleLabel(label2, "");
             StyleLabel(label3, "Position:");
             StyleLabel(label4, "Candidate:");
 
             // === Inputs ===
-            StyleTextBox(txtVoterNumber);
             StyleComboBox(cmbPositions);
             StyleComboBox(cmbCandidates);
 
@@ -209,10 +214,7 @@ namespace IT13VotingAppFinal
             int inputX = centerX;
 
             // Voter Number
-            label2.Left = labelX;
-            label2.Top = currentY;
-            txtVoterNumber.Left = inputX;
-            txtVoterNumber.Top = currentY - 3;
+          
             currentY += 50;
 
             // Position
@@ -238,11 +240,6 @@ namespace IT13VotingAppFinal
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtVoterNumber_TextChanged(object sender, EventArgs e)
         {
 
         }
@@ -290,6 +287,11 @@ namespace IT13VotingAppFinal
         }
 
         private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click_1(object sender, EventArgs e)
         {
 
         }

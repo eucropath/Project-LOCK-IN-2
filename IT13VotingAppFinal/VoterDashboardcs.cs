@@ -22,18 +22,40 @@ namespace IT13VotingAppFinal
             this.Size = new Size(900, 600);
 
             this.Load += VoterDashboardcs_Load;
+            this.Resize += VoterDashboardcs_Resize;
         }
+
+        private void VoterDashboardcs_Resize(object sender, EventArgs e)
+        {
+            CenterControls(); // recenter whenever form resizes
+        }
+
 
         private void VoterDashboardcs_Load(object sender, EventArgs e)
         {
+            SetupBackground();
             StyleControls();
             CenterControls();
+
+            label1.Parent = pictureBox1;
+            label1.BackColor = Color.Transparent;
+        }
+
+        private void SetupBackground()
+        {
+            // Make the PictureBox fill the whole form
+            pictureBox1.Dock = DockStyle.Fill;
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+
+            // Send the background behind all other controls
+            pictureBox1.SendToBack();
         }
 
         private void StyleControls()
         {
             // Title
             label1.Text = "Voter Dashboard";
+            label1.BackColor = Color.Transparent;
             label1.Font = new Font("Segoe UI", 18, FontStyle.Bold);
             label1.AutoSize = true;
 
@@ -97,9 +119,15 @@ namespace IT13VotingAppFinal
             loginForm.ShowDialog();
             this.Close();
         }
-private void label1_Click(object sender, EventArgs e)
+        private void label1_Click(object sender, EventArgs e)
         {
 
         }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }
