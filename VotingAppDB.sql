@@ -1,5 +1,5 @@
 /*
-SQLyog Community v13.3.0 (64 bit)
+SQLyog Community v13.1.5  (64 bit)
 MySQL - 10.4.32-MariaDB : Database - votingsystem
 *********************************************************************
 */
@@ -26,13 +26,21 @@ CREATE TABLE `candidates` (
   `LastName` varchar(50) NOT NULL,
   `Position` varchar(50) NOT NULL,
   PRIMARY KEY (`CandidateID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `candidates` */
 
 insert  into `candidates`(`CandidateID`,`FirstName`,`LastName`,`Position`) values 
-(8,'Marcus','Cole','Treasurer'),
-(10,'Christopher','Smith','President');
+(10,'Christopher','Smith','President'),
+(11,'Christian','Nabunturan','Mayor'),
+(12,'John','Anderson','President'),
+(13,'Sarah','Mitchell','President'),
+(14,'David','Chen','President'),
+(15,'Maria','Rodriguez','President'),
+(16,'Robert','Thompson','Mayor'),
+(17,'Jennifer','Williams','Mayor'),
+(18,'Michael','Brown','Mayor'),
+(19,'Lisa','Davis','Mayor');
 
 /*Table structure for table `users` */
 
@@ -50,16 +58,13 @@ CREATE TABLE `users` (
   PRIMARY KEY (`UserID`),
   UNIQUE KEY `Email` (`Email`),
   UNIQUE KEY `Username` (`Username`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `users` */
 
 insert  into `users`(`UserID`,`FirstName`,`LastName`,`Email`,`Username`,`PasswordHash`,`Role`,`CreatedAt`) values 
 (1,'System','Admin','admin@example.com','admin','admin123','Admin','2025-09-29 13:55:10'),
-(2,'Kyle','Verdida','kyleverdida@Gmail.com','kyleverdida','5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5','Voter','2025-09-29 13:57:52'),
-(3,'','','','admin2','240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9','Admin','2025-09-29 14:03:59'),
-(4,'k','k','k','k','8254c329a92850f6d539dd376f4816ee2764517da5e0235514af433164480d7a','Voter','2025-09-29 21:10:15'),
-(5,'a','b','c','d','3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea','Voter','2025-09-30 11:44:55');
+(3,'','','','admin2','240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9','Admin','2025-09-29 14:03:59');
 
 /*Table structure for table `voters` */
 
@@ -70,6 +75,8 @@ CREATE TABLE `voters` (
   `FirstName` varchar(50) NOT NULL,
   `LastName` varchar(50) NOT NULL,
   `Email` varchar(100) NOT NULL,
+  `Course` varchar(50) NOT NULL,
+  `YearLevel` varchar(50) NOT NULL,
   `Username` varchar(50) NOT NULL,
   `PasswordHash` varchar(255) NOT NULL,
   `Role` enum('Voter') NOT NULL DEFAULT 'Voter',
@@ -78,13 +85,16 @@ CREATE TABLE `voters` (
   PRIMARY KEY (`VoterID`),
   UNIQUE KEY `Email` (`Email`),
   UNIQUE KEY `Username` (`Username`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `voters` */
 
-insert  into `voters`(`VoterID`,`FirstName`,`LastName`,`Email`,`Username`,`PasswordHash`,`Role`,`CreatedAt`,`HasVoted`) values 
-(1,'Kyle','Verdida','@email.com','kyleverdida','5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5','Voter','2025-09-26 10:25:54',0),
-(2,'K','k','k','t','a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3','Voter','2025-09-29 13:48:24',0);
+insert  into `voters`(`VoterID`,`FirstName`,`LastName`,`Email`,`Course`,`YearLevel`,`Username`,`PasswordHash`,`Role`,`CreatedAt`,`HasVoted`) values 
+(1,'Kyle','Verdida','@email.com','','','kyleverdida','5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5','Voter','2025-09-26 10:25:54',1),
+(6,'k','k','k','','','k','8254c329a92850f6d539dd376f4816ee2764517da5e0235514af433164480d7a','Voter','2025-10-01 18:50:14',0),
+(8,'1','2','3','','','4','ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d','Voter','2025-10-01 18:50:14',0),
+(9,'n','n','n','','','n','1b16b1df538ba12dc3f97edbb85caa7050d46c148134290feba80f8236c83db9','Voter','2025-10-01 19:44:20',1),
+(10,'b','b','b','','','b','3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d','Voter','2025-10-01 19:54:57',1);
 
 /*Table structure for table `votes` */
 
@@ -96,13 +106,21 @@ CREATE TABLE `votes` (
   `CandidateID` int(11) NOT NULL,
   `VoteDate` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`VoteID`),
-  KEY `VoterID` (`VoterID`),
+  UNIQUE KEY `unique_vote_per_position` (`VoterID`,`CandidateID`),
   KEY `CandidateID` (`CandidateID`),
   CONSTRAINT `votes_ibfk_1` FOREIGN KEY (`VoterID`) REFERENCES `voters` (`VoterID`),
   CONSTRAINT `votes_ibfk_2` FOREIGN KEY (`CandidateID`) REFERENCES `candidates` (`CandidateID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `votes` */
+
+insert  into `votes`(`VoteID`,`VoterID`,`CandidateID`,`VoteDate`) values 
+(1,1,10,'2025-10-01 12:04:47'),
+(2,1,11,'2025-10-01 12:11:00'),
+(5,9,11,'2025-10-01 19:54:16'),
+(6,9,15,'2025-10-01 19:54:23'),
+(7,10,17,'2025-10-01 19:55:18'),
+(8,10,13,'2025-10-01 19:55:23');
 
 /* Procedure structure for procedure `sp_AddCandidate` */
 
@@ -165,14 +183,71 @@ DELIMITER ;
 
 DELIMITER $$
 
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CastVote`(IN in_voterid INT, IN in_candidateid INT)
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CastVote`(
+    IN in_voterid INT, 
+    IN in_candidateid INT
+)
 BEGIN
-    INSERT INTO Votes (VoterID, CandidateID)
-    VALUES (in_voterid, in_candidateid);
+    DECLARE candidate_position VARCHAR(100);
+    DECLARE vote_count INT;
+    DECLARE total_positions INT;
+    DECLARE voted_positions INT;
+    
+    -- Get the position of the candidate they're trying to vote for
+    SELECT Position INTO candidate_position
+    FROM candidates
+    WHERE CandidateID = in_candidateid;
+    
+    -- Check if voter has already voted for this position
+    SELECT COUNT(*) INTO vote_count
+    FROM votes v
+    INNER JOIN candidates c ON v.CandidateID = c.CandidateID
+    WHERE v.VoterID = in_voterid 
+      AND c.Position = candidate_position;
+    
+    -- If already voted for this position, raise an error
+    IF vote_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'You have already voted for this position';
+    ELSE
+        -- Cast the vote
+        INSERT INTO Votes (VoterID, CandidateID)
+        VALUES (in_voterid, in_candidateid);
+        
+        -- Count total distinct positions available
+        SELECT COUNT(DISTINCT Position) INTO total_positions 
+        FROM candidates;
+        
+        -- Count how many distinct positions this voter has now voted for
+        SELECT COUNT(DISTINCT c.Position) INTO voted_positions
+        FROM votes v
+        INNER JOIN candidates c ON v.CandidateID = c.CandidateID
+        WHERE v.VoterID = in_voterid;
+        
+        -- Only mark as HasVoted = 1 if they've voted for ALL positions
+        IF voted_positions >= total_positions THEN
+            UPDATE Voters SET HasVoted = 1 WHERE VoterID = in_voterid;
+        END IF;
+    END IF;
+END */$$
+DELIMITER ;
 
-    UPDATE Voters
-    SET HasVoted = 1
-    WHERE VoterID = in_voterid;
+/* Procedure structure for procedure `sp_CheckIfAlreadyVoted` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `sp_CheckIfAlreadyVoted` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CheckIfAlreadyVoted`(
+    IN in_voterid INT,
+    IN in_position VARCHAR(100)
+)
+BEGIN
+    SELECT COUNT(*) AS VoteCount
+    FROM votes v
+    INNER JOIN candidates c ON v.CandidateID = c.CandidateID
+    WHERE v.VoterID = in_voterid 
+      AND c.Position = in_position;
 END */$$
 DELIMITER ;
 
@@ -208,7 +283,7 @@ DELIMITER $$
 
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetAllCandidates`()
 BEGIN
-    SELECT CandidateID, FirstName, LastName, Position FROM candidates;
+    SELECT FirstName, LastName, Position FROM candidates;
 END */$$
 DELIMITER ;
 
@@ -232,7 +307,7 @@ DELIMITER $$
 
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetAllVoters`()
 BEGIN
-  SELECT VoterID, FirstName, LastName, Email, HasVoted   FROM Voters
+  SELECT VoterID, FirstName, LastName,Course, YearLevel, Email, HasVoted   FROM Voters
     ORDER BY VoterId DESC;
 END */$$
 DELIMITER ;
@@ -300,7 +375,7 @@ DELIMITER $$
     IN in_username VARCHAR(50)
 )
 BEGIN
-    SELECT UserID, Username, PasswordHash, Role
+    SELECT UserID, Username, PasswordHash, ROLE
     FROM Users
     WHERE Username = in_username;
 END */$$
@@ -336,6 +411,34 @@ BEGIN
 END */$$
 DELIMITER ;
 
+/* Procedure structure for procedure `sp_Login` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `sp_Login` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_Login`(
+    IN p_Username VARCHAR(50)
+)
+BEGIN
+    -- First check if user is an admin
+    IF EXISTS (SELECT 1 FROM users WHERE Username = p_Username) THEN
+        SELECT UserID AS ID, FirstName, LastName, Email, Username, PasswordHash, Role, 'Admin' AS UserType
+        FROM users 
+        WHERE Username = p_Username;
+    -- Then check if user is a voter
+    ELSEIF EXISTS (SELECT 1 FROM voters WHERE Username = p_Username) THEN
+        SELECT VoterID AS ID, FirstName, LastName, Email, Username, PasswordHash, Role, 'Voter' AS UserType
+        FROM voters 
+        WHERE Username = p_Username;
+    ELSE
+        -- Return empty result if user not found
+        SELECT NULL AS ID, NULL AS FirstName, NULL AS LastName, NULL AS Email, 
+               NULL AS Username, NULL AS PasswordHash, NULL AS Role, NULL AS UserType;
+    END IF;
+END */$$
+DELIMITER ;
+
 /* Procedure structure for procedure `sp_RegisterUser` */
 
 /*!50003 DROP PROCEDURE IF EXISTS  `sp_RegisterUser` */;
@@ -361,15 +464,30 @@ DELIMITER ;
 DELIMITER $$
 
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_RegisterVoter`(
-    IN FirstName VARCHAR(50),
-    IN LastName VARCHAR(50),
-    IN Email VARCHAR(100),
-    IN Username VARCHAR(50),
-    IN PasswordHash VARCHAR(255)
+    IN p_FirstName VARCHAR(50),
+    IN p_LastName VARCHAR(50),
+    IN p_Email VARCHAR(100),
+    IN p_Username VARCHAR(50),
+    IN p_PasswordHash VARCHAR(255)
 )
 BEGIN
-    INSERT INTO Users (FirstName, LastName, Email, Username, PasswordHash, Role)
-    VALUES (FirstName, LastName, Email, Username, PasswordHash, 'Voter');
+   -- Check if username already exists in voters table
+    IF EXISTS (SELECT 1 FROM voters WHERE Username = p_Username) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Username already exists';
+    END IF;
+    
+    -- Check if email already exists in voters table
+    IF EXISTS (SELECT 1 FROM voters WHERE Email = p_Email) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Email already exists';
+    END IF;
+    
+    -- Insert new voter into voters table
+    INSERT INTO voters (FirstName, LastName, Email, Username, PasswordHash, Role, HasVoted)
+    VALUES (p_FirstName, p_LastName, p_Email, p_Username, p_PasswordHash, 'Voter', 0);
+    
+    SELECT LAST_INSERT_ID() AS VoterID;
 END */$$
 DELIMITER ;
 

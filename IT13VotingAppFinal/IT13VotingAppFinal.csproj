@@ -213,5 +213,29 @@
   <ItemGroup>
     <None Include="Resources\AdminDash Bg.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Candidate Form bg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\result bg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\result bg 2 oh boy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Reg bg 2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\VOTING BG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\i dont know.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Cand BG 2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\User Bg2.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

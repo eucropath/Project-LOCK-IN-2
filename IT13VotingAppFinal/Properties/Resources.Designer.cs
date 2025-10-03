@@ -73,6 +73,36 @@ namespace IT13VotingAppFinal.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Cand_BG_2 {
+            get {
+                object obj = ResourceManager.GetObject("Cand BG 2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Candidate_Form_bg {
+            get {
+                object obj = ResourceManager.GetObject("Candidate Form bg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap i_dont_know {
+            get {
+                object obj = ResourceManager.GetObject("i dont know", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap LOGIN_BACK_ACK {
             get {
                 object obj = ResourceManager.GetObject("LOGIN BACK ACK", resourceCulture);
@@ -103,6 +133,46 @@ namespace IT13VotingAppFinal.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Reg_bg_2 {
+            get {
+                object obj = ResourceManager.GetObject("Reg bg 2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap result_bg {
+            get {
+                object obj = ResourceManager.GetObject("result bg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap result_bg_2_oh_boy {
+            get {
+                object obj = ResourceManager.GetObject("result bg 2 oh boy", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap User_Bg2 {
+            get {
+                object obj = ResourceManager.GetObject("User Bg2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap vOTER_bG {
             get {
                 object obj = ResourceManager.GetObject("vOTER bG", resourceCulture);
@@ -116,6 +186,16 @@ namespace IT13VotingAppFinal.Properties {
         internal static System.Drawing.Bitmap voterdash_bg {
             get {
                 object obj = ResourceManager.GetObject("voterdash bg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap VOTING_BG {
+            get {
+                object obj = ResourceManager.GetObject("VOTING BG", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

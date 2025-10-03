@@ -16,15 +16,68 @@ namespace IT13VotingAppFinal
         public VoterForm()
         {
             InitializeComponent();
-            btnAdd.Click += btnAdd_Click;
-            btnUpdate.Click += btnUpdate_Click;
-            btnDelete.Click += btnDelete_Click;
-            btnRefresh.Click += btnRefresh_Click;
-            btnClear.Click += btnClear_Click;
 
             dgvVoters.SelectionChanged += dgvVoters_SelectionChanged;
 
-            LoadVoters();
+            this.Load += VoterForm_Load;
+            this.Resize += VoterForm_Resize;
+        }
+
+        private static bool _isShowingMessage = false;
+
+        private void ShowMessage(string message, string title = "Notice")
+        {
+            if (_isShowingMessage) return; // prevent duplicates
+            try
+            {
+                _isShowingMessage = true;
+                MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            finally
+            {
+                _isShowingMessage = false;
+            }
+        }
+        private void VoterForm_Resize(object sender, EventArgs e)
+        {
+            PositionControls();
+        }
+        private void PositionControls()
+        {
+            int centerX = this.ClientSize.Width / 2;
+
+    // === Title ===
+    label1.Left = centerX - (label1.Width / 2);
+    label1.Top = 20;
+
+    // === DataGridView directly under Title ===
+    dgvVoters.Left = 50;
+    dgvVoters.Top = label1.Bottom + 30;
+    dgvVoters.Width = this.ClientSize.Width - 100;
+    dgvVoters.Height = this.ClientSize.Height / 3;
+
+    // === Inputs under DataGridView ===
+    int inputTop = dgvVoters.Bottom + 30;
+
+    label2.Left = centerX - 200; label2.Top = inputTop;
+    txtFirstName.Left = centerX; txtFirstName.Top = inputTop;
+
+    label3.Left = centerX - 200; label3.Top = inputTop + 50;
+    txtLastName.Left = centerX; txtLastName.Top = inputTop + 50;
+
+    label4.Left = centerX - 200; label4.Top = inputTop + 100;
+    txtEmail.Left = centerX; txtEmail.Top = inputTop + 100;
+
+    // === Buttons row at bottom ===
+    int buttonsTop = txtEmail.Bottom + 50;
+    int spacing = 140;
+
+    btnAdd.Location = new Point(centerX - (spacing * 2), buttonsTop);
+    btnUpdate.Location = new Point(centerX - spacing, buttonsTop);
+    btnDelete.Location = new Point(centerX, buttonsTop);
+    btnRefresh.Location = new Point(centerX + spacing, buttonsTop);
+    btnClear.Location = new Point(centerX - btnClear.Width - 10, buttonsTop + 60);
+    button1.Location = new Point(btnClear.Right + 20, btnClear.Top);    
         }
         private void LoadVoters()
         {
@@ -43,7 +96,7 @@ namespace IT13VotingAppFinal
             if (string.IsNullOrEmpty(firstName) ||
                 string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(email))
             {
-                MessageBox.Show("Please fill all fields.");
+              ShowMessage("Please fill all fields.");
                 return;
             }
 
@@ -57,11 +110,11 @@ namespace IT13VotingAppFinal
                    );
                  LoadVoters();
                 ClearFields();
-                MessageBox.Show("Voter added successfully.");
+                ShowMessage("Voter added successfully.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error adding voter: " + ex.Message);
+                ShowMessage("Error adding voter: " + ex.Message);
             }
         }
         
@@ -70,7 +123,7 @@ namespace IT13VotingAppFinal
         {
             if (dgvVoters.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Select a voter to update.");
+                ShowMessage("Select a voter to update.");
                 return;
             }
 
@@ -92,11 +145,11 @@ namespace IT13VotingAppFinal
                    new MySqlParameter("@in_email", email));
                 LoadVoters();
                 ClearFields();
-                MessageBox.Show("Voter updated successfully.");
+                ShowMessage("Voter updated successfully.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error updating voter: " + ex.Message);
+                ShowMessage("Error updating voter: " + ex.Message);
             }
 
         }
@@ -105,7 +158,7 @@ namespace IT13VotingAppFinal
         {
             if (dgvVoters.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Select a voter to delete.");
+                ShowMessage("Select a voter to delete.");
                 return;
             }
 
@@ -119,11 +172,11 @@ namespace IT13VotingAppFinal
                     new MySqlParameter("@in_id", id));
                 LoadVoters();
                 ClearFields();
-                MessageBox.Show("Voter deleted successfully.");
+                ShowMessage("Voter deleted successfully.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error deleting voter: " + ex.Message);
+                ShowMessage("Error deleting voter: " + ex.Message);
             }
         }
 
@@ -148,8 +201,6 @@ namespace IT13VotingAppFinal
             if (dgvVoters.SelectedRows.Count > 0)
             {
                 var row = dgvVoters.SelectedRows[0];
-            
-                ;
                 txtFirstName.Text = row.Cells["FirstName"].Value.ToString();
                 txtLastName.Text = row.Cells["LastName"].Value.ToString();
                 txtEmail.Text = row.Cells["Email"].Value.ToString();
@@ -158,7 +209,90 @@ namespace IT13VotingAppFinal
 
         private void VoterForm_Load(object sender, EventArgs e)
         {
+            // === FORM SETTINGS ===
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Size = new Size(1000, 650);
 
+            // === BACKGROUND ===
+            pictureBox1.Dock = DockStyle.Fill;
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox1.SendToBack();
+
+            // ✅ Re-parent all labels to the PictureBox
+            foreach (Control ctrl in this.Controls)
+            {
+                if (ctrl is Label lbl)
+                    lbl.Parent = pictureBox1;
+            }
+
+            // === TITLE ===
+            label1.Text = "Voter Management";
+            label1.Font = new Font("Segoe UI", 18, FontStyle.Bold);
+            label1.ForeColor = Color.White;
+            label1.BackColor = Color.Transparent;
+            label1.AutoSize = true;
+
+            label2.Text = "First Name";
+            label2.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            label2.ForeColor = Color.White;
+            label2.BackColor = Color.Transparent;
+            label2.Parent = pictureBox1;
+            label2.AutoSize = true;
+
+            label3.Text = "Last Name";
+            label3.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            label3.ForeColor = Color.White;
+            label3.BackColor = Color.Transparent;
+            label3.AutoSize = true;
+
+            label4.Text = "Email";
+            label4.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            label4.ForeColor = Color.White;
+label4.BackColor = Color.Transparent;
+            label4.AutoSize = true;
+
+
+            // === TEXTBOXES ===
+            foreach (TextBox txt in new[] { txtFirstName, txtLastName, txtEmail })
+            {
+                txt.Font = new Font("Segoe UI", 10);
+                txt.Width = 180;
+            }
+
+            // === BUTTONS ===
+            StyleButton(btnAdd, "Add", Color.MediumSeaGreen, Color.White);
+            StyleButton(btnUpdate, "Update", Color.SteelBlue, Color.White);
+            StyleButton(btnDelete, "Delete", Color.IndianRed, Color.White);
+            StyleButton(btnRefresh, "Refresh", Color.Orange, Color.White);
+            StyleButton(btnClear, "Clear", Color.Gray, Color.White);
+
+            StyleButton(button1, "Close", Color.DarkRed, Color.White);
+            MakeRounded(button1, 15);
+
+            // === DATAGRIDVIEW ===
+            dgvVoters.BackgroundColor = Color.White;
+            dgvVoters.GridColor = Color.LightGray;
+            dgvVoters.DefaultCellStyle.BackColor = Color.White;
+            dgvVoters.DefaultCellStyle.ForeColor = Color.Black;
+            dgvVoters.AlternatingRowsDefaultCellStyle.BackColor = Color.AliceBlue;
+            dgvVoters.ColumnHeadersDefaultCellStyle.BackColor = Color.SteelBlue;
+            dgvVoters.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvVoters.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dgvVoters.EnableHeadersVisualStyles = false;
+            dgvVoters.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+              MakeRounded(btnAdd, 15);
+    MakeRounded(btnUpdate, 15);
+    MakeRounded(btnDelete, 15);
+    MakeRounded(btnRefresh, 15);
+    MakeRounded(btnClear, 15);
+
+    MakeRounded(txtFirstName, 10);
+    MakeRounded(txtLastName, 10);
+    MakeRounded(txtEmail, 10);
+
+            PositionControls();
+            LoadVoters();
         }
 
         private void dgvVoters_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -210,6 +344,19 @@ namespace IT13VotingAppFinal
         {
 
         }
+        private void StyleButton(Button btn, string text, Color backColor, Color foreColor)
+        {
+            btn.Text = text;
+            btn.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            btn.BackColor = backColor;
+            btn.ForeColor = foreColor;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Size = new Size(120, 40);
+
+            btn.MouseEnter += (s, e) => { btn.BackColor = ControlPaint.Dark(backColor); };
+            btn.MouseLeave += (s, e) => { btn.BackColor = backColor; };
+        }
         private void ArrangeLayout()
         {
             // Panel for inputs
@@ -244,9 +391,10 @@ namespace IT13VotingAppFinal
 
             this.Controls.Add(buttonPanel);
         }
+
+
         private void StyleControls()
         {
-            // Title
           
             // Labels
             foreach (Label lbl in new[] { label2, label3, label4 })
@@ -309,7 +457,6 @@ namespace IT13VotingAppFinal
         {
             int centerX = this.ClientSize.Width / 2;
 
-            // Title
          
 
             // Input fields (stacked vertically, like screenshot)
@@ -338,6 +485,7 @@ namespace IT13VotingAppFinal
             btnDelete.Left = btnUpdate.Right + 20; btnDelete.Top = buttonsTop;
             btnRefresh.Left = btnDelete.Right + 20; btnRefresh.Top = buttonsTop;
             btnClear.Left = btnRefresh.Right + 20; btnClear.Top = buttonsTop;
+            button1.Left = btnClear.Right + 20; button1.Top = buttonsTop;
 
             // DataGridView (below everything)
             dgvVoters.Left = 50;
@@ -346,6 +494,31 @@ namespace IT13VotingAppFinal
             dgvVoters.Height = this.ClientSize.Height - dgvVoters.Top - 50;
         }
 
+        private void MakeRounded(Control ctrl, int radius)
+        {
+            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.StartFigure();
+            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
+            path.AddLine(radius, 0, ctrl.Width - radius, 0);
+            path.AddArc(new Rectangle(ctrl.Width - radius, 0, radius, radius), -90, 90);
+            path.AddLine(ctrl.Width, radius, ctrl.Width, ctrl.Height - radius);
+            path.AddArc(new Rectangle(ctrl.Width - radius, ctrl.Height - radius, radius, radius), 0, 90);
+            path.AddLine(ctrl.Width - radius, ctrl.Height, radius, ctrl.Height);
+            path.AddArc(new Rectangle(0, ctrl.Height - radius, radius, radius), 90, 90);
+            path.CloseFigure();
+
+            ctrl.Region = new Region(path);
+        }
+
+        private void label1_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
 

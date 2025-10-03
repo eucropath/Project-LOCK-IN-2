@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
+using System.Linq;  
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,14 +14,13 @@ namespace IT13VotingAppFinal
     public partial class VotingForm : Form
     {
         private Form voterDashboard;
-        private int _loggedInVoterId;
-        private int voterId;
+        private int voterID;
 
-        public VotingForm(Form dashboard)
+        public VotingForm(Form dashboard, int voterId)
         {
             InitializeComponent();
-            _loggedInVoterId = voterId;
             voterDashboard = dashboard;
+            voterID = voterId;
             LoadPositions();
             LoadCandidates();
             cmbPositions.SelectedIndexChanged += cmbPositions_SelectedIndexChanged;
@@ -45,22 +44,37 @@ namespace IT13VotingAppFinal
             {
                 // Validate voter from database (optional)
                 var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetVoterByID",
-                    new MySqlParameter("@in_voterid", _loggedInVoterId));
+                    new MySqlParameter("@in_voterid", voterID));
 
                 if (dt.Rows.Count == 0)
                 {
                     MessageBox.Show("Voter not found.");
                     return;
                 }
+                
                 int candidateId = Convert.ToInt32(dgvCandidates.CurrentRow.Cells["CandidateID"].Value);
+                string position = cmbPositions.SelectedValue.ToString();
+                var dtCheck = DataAccess.ExecuteProcedureToDataTable("sp_CheckIfAlreadyVoted",
+                           new MySqlParameter("@in_voterid", voterID),
+                           new MySqlParameter("@in_position", position));
+
+                if (dtCheck.Rows.Count > 0 && Convert.ToInt32(dtCheck.Rows[0]["VoteCount"]) > 0)
+                {
+                    MessageBox.Show("You have already voted for " + position + "!");
+                    return;
+                }
                 DataAccess.ExecuteProcedureNonQuery("sp_CastVote",
-            new MySqlParameter("@in_voterid", _loggedInVoterId),
+            new MySqlParameter("@in_voterid", voterID),
             new MySqlParameter("@in_candidateid", candidateId));
 
                 MessageBox.Show("Vote cast successfully.");
             }
             catch (MySqlException mex)
             {
+                if (mex.Message.Contains("already voted for this position"))
+                {
+                    MessageBox.Show("You have already voted for this position!");
+                }
                 MessageBox.Show("Database error: " + mex.Message);
             }
             catch (Exception ex)
@@ -98,13 +112,12 @@ namespace IT13VotingAppFinal
         private void LoadCandidates()
         {
             var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetAllCandidates");
-            MessageBox.Show(dt.Rows.Count.ToString());
+           
             dgvCandidates.DataSource = dt;
 
             // Fill ComboBox with candidates (showing full name and position)
             cmbCandidates.DataSource = dt;
             cmbCandidates.DisplayMember = "FirstName"; // or use a custom property for full name
-            cmbCandidates.ValueMember = "CandidateId";
 
             dt.Columns.Add("FullName", typeof(string));
             foreach (DataRow row in dt.Rows)
@@ -114,27 +127,45 @@ namespace IT13VotingAppFinal
 
             cmbCandidates.DataSource = dt;
             cmbCandidates.DisplayMember = "FullName";
-            cmbCandidates.ValueMember = "CandidateId";
         }
+
 
         private void VotingForm_Load(object sender, EventArgs e)
         {
+            label1.Parent = pictureBox1;
+            label1.BackColor = Color.Transparent;
+
+            label2.Parent = pictureBox1;
+            label2.BackColor = Color.Transparent;
+
+            label3.Parent = pictureBox1;
+            label3.BackColor = Color.Transparent;
+
+            label4.Parent = pictureBox1;
+            label4.BackColor = Color.Transparent;
+
             // === Form Styling ===
             this.Text = "Voting Form";
             this.WindowState = FormWindowState.Normal;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Size = new Size(900, 600);
 
+
             // === Title Label ===
             label1.Text = "Voting Form";
             label1.Font = new Font("Segoe UI", 20, FontStyle.Bold);
-            label1.ForeColor = Color.FromArgb(16, 40, 64); // dark blue
+            label1.ForeColor = Color.White; // dark blue
             label1.AutoSize = true;
 
             // === Labels ===
             StyleLabel(label2, "");
             StyleLabel(label3, "Position:");
             StyleLabel(label4, "Candidate:");
+
+            // === BACKGROUND ===
+            pictureBox1.Dock = DockStyle.Fill;
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox1.SendToBack();
 
             // === Inputs ===
             StyleComboBox(cmbPositions);
@@ -147,6 +178,12 @@ namespace IT13VotingAppFinal
             StyleButton(btnCastVote, "Cast Vote", Color.FromArgb(0, 123, 255), Color.White); // blue
             StyleButton(button1, "Back", Color.FromArgb(220, 53, 69), Color.White); // red
 
+            ApplyRoundedCorners(btnCastVote, 10);
+            ApplyRoundedCorners(button1, 10);
+            ApplyRoundedCorners(cmbPositions, 10);
+            ApplyRoundedCorners(cmbCandidates, 10);
+
+
             // Center everything
             CenterControls();
 
@@ -158,7 +195,7 @@ namespace IT13VotingAppFinal
         {
             lbl.Text = text;
             lbl.Font = new Font("Segoe UI", 11, FontStyle.Regular);
-            lbl.ForeColor = Color.Black;
+            lbl.ForeColor = Color.White;
             lbl.BackColor = Color.Transparent;
             lbl.AutoSize = true;
         }
@@ -238,6 +275,35 @@ namespace IT13VotingAppFinal
             button1.Left = centerX + 20;
             button1.Top = currentY;
         }
+        private void ApplyLabelStyles()
+        {
+            foreach (Control ctrl in this.Controls)
+            {
+                if (ctrl is Label lbl)
+                {
+                    lbl.BackColor = Color.Transparent;
+                    lbl.ForeColor = Color.LightSkyBlue;
+                    lbl.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+
+                    
+                    lbl.Parent = pictureBox1;
+                }
+            }
+        }
+        private void ApplyRoundedCorners(Control control, int radius)
+        {
+            System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.StartFigure();
+            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
+            path.AddLine(radius, 0, control.Width - radius, 0);
+            path.AddArc(new Rectangle(control.Width - radius, 0, radius, radius), -90, 90);
+            path.AddLine(control.Width, radius, control.Width, control.Height - radius);
+            path.AddArc(new Rectangle(control.Width - radius, control.Height - radius, radius, radius), 0, 90);
+            path.AddLine(control.Width - radius, control.Height, radius, control.Height);
+            path.AddArc(new Rectangle(0, control.Height - radius, radius, radius), 90, 90);
+            path.CloseFigure();
+            control.Region = new Region(path);
+        }
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
@@ -292,6 +358,11 @@ namespace IT13VotingAppFinal
         }
 
         private void label5_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click_1(object sender, EventArgs e)
         {
 
         }

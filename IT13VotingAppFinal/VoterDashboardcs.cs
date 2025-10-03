@@ -12,9 +12,11 @@ namespace IT13VotingAppFinal
 {
     public partial class VoterDashboardcs : Form
     {
-        public VoterDashboardcs()
+        private int voterID;
+        public VoterDashboardcs(int voterId)
         {
             InitializeComponent();
+            voterID = voterId;
 
             // Make the form consistent
             this.WindowState = FormWindowState.Normal;
@@ -56,18 +58,35 @@ namespace IT13VotingAppFinal
             // Title
             label1.Text = "Voter Dashboard";
             label1.BackColor = Color.Transparent;
-            label1.Font = new Font("Segoe UI", 18, FontStyle.Bold);
+            label1.ForeColor = Color.White;
+            label1.Font = new Font("Segoe UI", 20, FontStyle.Bold);
             label1.AutoSize = true;
+            label1.Parent = pictureBox1;
 
             // Common button style
             foreach (Button btn in new[] { btnVoting, btnResults, btnLogout })
             {
-                btn.Width = 120;
-                btn.Height = 40;
+                btn.Width = 140;
+                btn.Height = 45;
                 btn.FlatStyle = FlatStyle.Flat;
-                btn.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+                btn.Font = new Font("Segoe UI", 11, FontStyle.Bold);
                 btn.FlatAppearance.BorderSize = 0;
                 btn.ForeColor = Color.White;
+
+                // Rounded corners
+                MakeRounded(btn, 20);
+
+                // Hover effects
+                btn.MouseEnter += (s, e) =>
+                {
+                    btn.BackColor = ControlPaint.Light(btn.BackColor);
+                };
+                btn.MouseLeave += (s, e) =>
+                {
+                    if (btn == btnVoting) btn.BackColor = Color.FromArgb(0, 123, 255);   // Blue
+                    else if (btn == btnResults) btn.BackColor = Color.FromArgb(108, 117, 125); // Gray
+                    else if (btn == btnLogout) btn.BackColor = Color.FromArgb(220, 53, 69);    // Red
+                };
             }
 
             // Specific colors
@@ -98,10 +117,23 @@ namespace IT13VotingAppFinal
             btnLogout.Left = btnResults.Right + 20;
             btnLogout.Top = buttonsTop;
         }
-
+        private void MakeRounded(Control ctrl, int radius)
+        {
+            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.StartFigure();
+            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
+            path.AddLine(radius, 0, ctrl.Width - radius, 0);
+            path.AddArc(new Rectangle(ctrl.Width - radius, 0, radius, radius), -90, 90);
+            path.AddLine(ctrl.Width, radius, ctrl.Width, ctrl.Height - radius);
+            path.AddArc(new Rectangle(ctrl.Width - radius, ctrl.Height - radius, radius, radius), 0, 90);
+            path.AddLine(ctrl.Width - radius, ctrl.Height, radius, ctrl.Height);
+            path.AddArc(new Rectangle(0, ctrl.Height - radius, radius, radius), 90, 90);
+            path.CloseFigure();
+            ctrl.Region = new Region(path);
+        }
         private void btnVoting_Click(object sender, EventArgs e)
         {
-            var votingForm = new VotingForm(this);
+            var votingForm = new VotingForm(this, voterID);
             votingForm.Show();
             this.Hide();
         }

@@ -24,44 +24,44 @@ namespace IT13VotingAppFinal
         {
             int centerX = this.ClientSize.Width / 2;
 
-            // Title
+
             label1.Left = centerX - (label1.Width / 2);
             label1.Top = 40;
 
             int startY = 130;
             int spacingY = 60;
 
-            // First Name
+       
             label2.Left = centerX - 200;
             label2.Top = startY;
             txtFirstName.Left = centerX;
             txtFirstName.Top = startY - 5;
 
-            // Last Name
+
             label4.Left = centerX - 200;
             label4.Top = startY + spacingY;
             txtLastName.Left = centerX;
             txtLastName.Top = startY + spacingY - 5;
 
-            // Email
+
             label3.Left = centerX - 200;
             label3.Top = startY + (spacingY * 2);
             txtEmail.Left = centerX;
             txtEmail.Top = startY + (spacingY * 2) - 5;
 
-            // Username 👇 (new)
+
             label5.Left = centerX - 200;
             label5.Top = startY + (spacingY * 3);
             txtUsername.Left = centerX;
             txtUsername.Top = startY + (spacingY * 3) - 5;
 
-            // Password 👇 (new)
+
             label6.Left = centerX - 200;
             label6.Top = startY + (spacingY * 4);
             txtPassword.Left = centerX;
             txtPassword.Top = startY + (spacingY * 4) - 5;
 
-            // Buttons (moved further down)
+            
             int buttonsTop = startY + (spacingY * 5) + 20;
             int totalWidth = (button1.Width + btnRegister.Width + btnExit.Width) + 40;
             int buttonsLeft = centerX - (totalWidth / 2);
@@ -75,7 +75,7 @@ namespace IT13VotingAppFinal
             btnExit.Left = btnRegister.Right + 20;
             btnExit.Top = buttonsTop;
 
-            // Status label
+     
             lblStatus.Left = centerX - (lblStatus.Width / 2);
             lblStatus.Top = buttonsTop + 70;
         }
@@ -85,13 +85,13 @@ namespace IT13VotingAppFinal
         {
             lbl.Text = text;
             lbl.Font = new Font("Segoe UI", 12, FontStyle.Regular);
-            lbl.ForeColor = ColorTranslator.FromHtml("#0A2E5C"); // Dark navy
+            lbl.ForeColor = ColorTranslator.FromHtml("#0A2E5C"); 
             lbl.BackColor = Color.Transparent;
             lbl.AutoSize = true;
             lbl.Location = new Point(x, y);
             if (pictureBox1 != null) lbl.Parent = pictureBox1;
 
-            // 👇 This ensures transparency works over the PictureBox
+       
             lbl.Parent = pictureBox1;
         }
 
@@ -122,15 +122,20 @@ namespace IT13VotingAppFinal
                     passwordHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
                 }
                 int rowsAffected = DataAccess.ExecuteProcedureNonQuery("sp_RegisterVoter",
-                    new MySqlParameter("@FirstName", txtFirstName.Text.Trim()),
-                    new MySqlParameter("@LastName", txtLastName.Text.Trim()),
-                    new MySqlParameter("@Email", txtEmail.Text.Trim()),
-                    new MySqlParameter("@Username", txtUsername.Text.Trim()),
-                    new MySqlParameter("@PasswordHash", passwordHash));
+                    new MySqlParameter("p_FirstName", txtFirstName.Text.Trim()),
+                    new MySqlParameter("p_LastName", txtLastName.Text.Trim()),
+                    new MySqlParameter("p_Email", txtEmail.Text.Trim()),
+                    new MySqlParameter("p_Username", txtUsername.Text.Trim()),
+                    new MySqlParameter("p_PasswordHash", passwordHash));
                     new MySqlParameter("@Role", "Voter");
 
                 if (rowsAffected > 0)
                 {
+                    //added
+                    MessageBox.Show("Registration successful! Now please log in.",
+                                    "Success",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);//Added
                     lblStatus.Text = "Registration successful! You can now log in.";
                     this.Hide();
                     var loginForm = new LoginForm();
@@ -182,26 +187,25 @@ namespace IT13VotingAppFinal
             // === Title Label ===
             label1.Text = "Voter Registration";
             label1.Font = new Font("Segoe UI", 22, FontStyle.Bold);
-            label1.ForeColor = ColorTranslator.FromHtml("#102840"); // deep blueish black
+            label1.ForeColor = Color.White;
             label1.BackColor = Color.Transparent;
             label1.AutoSize = true;
             label1.Parent = pictureBox1;
 
             // === Labels ===
             StyleLabel(label2, "First Name:", 0, 0);
-            label2.ForeColor = Color.Black; // text color set to black
-
+            label2.ForeColor = Color.White;
             StyleLabel(label4, "Last Name:", 0, 0);
-            label4.ForeColor = Color.Black; // text color set to black
+            label4.ForeColor = Color.White;
 
             StyleLabel(label3, "Email:", 0, 0);
-            label3.ForeColor = Color.Black; // text color set to black
+            label3.ForeColor = Color.White; 
 
             StyleLabel(label5, "Username:", 0, 0);
-            label5.ForeColor = Color.Black;
+            label5.ForeColor = Color.White;
 
             StyleLabel(label6, "Password:", 0, 0);
-            label6.ForeColor = Color.Black;
+            label6.ForeColor = Color.White;
 
             // === Textboxes ===
             StyleTextBox(txtFirstName, 0, 0);
@@ -224,7 +228,20 @@ namespace IT13VotingAppFinal
             lblStatus.AutoSize = true;
             lblStatus.Parent = pictureBox1;
 
-           
+
+            MakeRounded(txtFirstName, 15);
+            MakeRounded(txtLastName, 15);
+            MakeRounded(txtEmail, 15);
+            MakeRounded(txtUsername, 15);
+            MakeRounded(txtPassword, 15);
+
+            MakeRounded(button1, 20);
+            MakeRounded(btnRegister, 20);
+            MakeRounded(btnExit, 20);
+
+                
+
+
 
             // Center everything
             CenterControls();
@@ -275,6 +292,20 @@ namespace IT13VotingAppFinal
 
             if (pictureBox1 != null) txt.Parent = pictureBox1;
         }
+        private void MakeRounded(Control ctrl, int radius)
+        {
+            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.StartFigure();
+            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
+            path.AddLine(radius, 0, ctrl.Width - radius, 0);
+            path.AddArc(new Rectangle(ctrl.Width - radius, 0, radius, radius), -90, 90);
+            path.AddLine(ctrl.Width, radius, ctrl.Width, ctrl.Height - radius);
+            path.AddArc(new Rectangle(ctrl.Width - radius, ctrl.Height - radius, radius, radius), 0, 90);
+            path.AddLine(ctrl.Width - radius, ctrl.Height, radius, ctrl.Height);
+            path.AddArc(new Rectangle(0, ctrl.Height - radius, radius, radius), 90, 90);
+            path.CloseFigure();
+            ctrl.Region = new Region(path);
+        }
         private void StyleButton(Button btn, string text, int x, int y, Color foreColor, Color backColor)
         {
             btn.Text = text;
@@ -322,6 +353,7 @@ namespace IT13VotingAppFinal
 
         }
 
+       
     }
         }
 

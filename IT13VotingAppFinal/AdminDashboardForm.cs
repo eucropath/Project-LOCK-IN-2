@@ -30,8 +30,17 @@ namespace IT13VotingAppFinal
 
         private void btnVoters_Click(object sender, EventArgs e)
         {
+            foreach (Form f in Application.OpenForms)
+            {
+                if (f is VoterForm)
+                {
+                    f.BringToFront();
+                    return;
+                }
+            }
+
             var vf = new VoterForm();
-            vf.ShowDialog();
+            vf.Show();
         }
         private void btnCandidates_Click(object sender, EventArgs e)
         {
@@ -71,7 +80,7 @@ namespace IT13VotingAppFinal
 
             label1.Text = "Admin Dashboard";
             label1.Font = new Font("Segoe UI", 18, FontStyle.Bold);
-            label1.ForeColor = Color.LightBlue;
+            label1.ForeColor = Color.White;
             label1.BackColor = Color.Transparent;
             label1.AutoSize = true;
 
@@ -125,6 +134,17 @@ namespace IT13VotingAppFinal
 
             // Fix to top-left, so it won’t move
             btn.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+
+            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            int radius = 20;
+            path.AddArc(0, 0, radius, radius, 180, 90);
+            path.AddArc(btn.Width - radius, 0, radius, radius, 270, 90);
+            path.AddArc(btn.Width - radius, btn.Height - radius, radius, radius, 0, 90);
+            path.AddArc(0, btn.Height - radius, radius, radius, 90, 90);
+            path.CloseAllFigures();
+            btn.Region = new Region(path);
+
+
         }
 
         private void AdminDashboardForm_Resize(object sender, EventArgs e)

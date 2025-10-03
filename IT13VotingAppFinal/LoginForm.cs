@@ -23,17 +23,28 @@ namespace IT13VotingAppFinal
         private void btnLogin_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text.Trim();
+            string password = txtPassword.Text.Trim();
+
+
 
             if (string.IsNullOrEmpty(username))
             {
-                MessageBox.Show("You need to fill up the box first.");
+                MessageBox.Show("Fill in all the fields.");
                 return;
             }
 
             try
             {
-                var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetUserByUsername",
-                    new MySqlParameter("@in_username", username));
+                // First, try to find user in voters table
+                var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetVoterByUsername",
+                    new MySqlParameter("in_username", username));
+
+                // If not found in voters, check users table (for admins)
+                if (dt.Rows.Count == 0)
+                {
+                    dt = DataAccess.ExecuteProcedureToDataTable("sp_GetUserByUsername",
+                        new MySqlParameter("in_username", username));
+                }
 
                 if (dt.Rows.Count == 0)
                 {
@@ -44,11 +55,12 @@ namespace IT13VotingAppFinal
                 var row = dt.Rows[0];
                 string storedHash = row["PasswordHash"].ToString();
                 string role = row["Role"].ToString();
-                string enteredPassword = txtPassword.Text.Trim();
+
+                // Hash the entered password
                 string enteredHash;
                 using (var sha256 = System.Security.Cryptography.SHA256.Create())
                 {
-                    var bytes = Encoding.UTF8.GetBytes(enteredPassword);
+                    var bytes = Encoding.UTF8.GetBytes(password);
                     var hashBytes = sha256.ComputeHash(bytes);
                     enteredHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
                 }
@@ -58,6 +70,8 @@ namespace IT13VotingAppFinal
                     MessageBox.Show("Invalid password.");
                     return;
                 }
+
+                // Login successful
                 this.Hide();
 
                 if (role == "Admin")
@@ -65,9 +79,10 @@ namespace IT13VotingAppFinal
                     var adminForm = new AdminDashboardForm();
                     adminForm.ShowDialog();
                 }
-                else
+                else // role == "Voter"
                 {
-                    var voterForm = new VoterDashboardcs();
+                    int voterID = Convert.ToInt32(row["VoterID"]);
+                    var voterForm = new VoterDashboardcs(voterID);
                     voterForm.ShowDialog();
                 }
 
@@ -114,6 +129,16 @@ namespace IT13VotingAppFinal
 
         private void LoginForm_Load(object sender, EventArgs e)
         {
+
+            // Rounded corners for textboxes
+            MakeRounded(txtUsername, 15);
+            MakeRounded(txtPassword, 15);
+
+            // Rounded corners for buttons
+            MakeRounded(btnLogin, 20);
+            MakeRounded(Register, 20);
+            MakeRounded(btnExit, 20);
+
             this.Text = "Login";
             this.WindowState = FormWindowState.Normal;
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -122,17 +147,17 @@ namespace IT13VotingAppFinal
             // === Title ===
             label1.Text = "Login";
             label1.Font = new Font("Segoe UI", 22, FontStyle.Bold);
-            label1.ForeColor = ColorTranslator.FromHtml("#102840");
+            label1.ForeColor = Color.White;
             label1.BackColor = Color.Transparent;
             label1.AutoSize = true;
             label1.Parent = pictureBox1;
 
             // === Labels ===
             StyleLabel(label2, "Enter Username:", 0, 0);
-            label2.ForeColor = Color.Black;
+            label2.ForeColor = Color.White;
 
             StyleLabel(label3, "Enter Password:", 0, 0);
-            label3.ForeColor = Color.Black;
+            label3.ForeColor = Color.White  ;
 
             // === Textboxes ===
             StyleTextBox(txtUsername, 0, 0);
@@ -154,6 +179,21 @@ namespace IT13VotingAppFinal
 
             // Recenter on resize
             this.Resize += (s, ev) => CenterControls();
+        }
+
+        private void MakeRounded(Control ctrl, int radius)
+        {
+            var path = new System.Drawing.Drawing2D.GraphicsPath();
+            path.StartFigure();
+            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
+            path.AddLine(radius, 0, ctrl.Width - radius, 0);
+            path.AddArc(new Rectangle(ctrl.Width - radius, 0, radius, radius), -90, 90);
+            path.AddLine(ctrl.Width, radius, ctrl.Width, ctrl.Height - radius);
+            path.AddArc(new Rectangle(ctrl.Width - radius, ctrl.Height - radius, radius, radius), 0, 90);
+            path.AddLine(ctrl.Width - radius, ctrl.Height, radius, ctrl.Height);
+            path.AddArc(new Rectangle(0, ctrl.Height - radius, radius, radius), 90, 90);
+            path.CloseFigure();
+            ctrl.Region = new Region(path);
         }
 
         private void Register_Click(object sender, EventArgs e)
