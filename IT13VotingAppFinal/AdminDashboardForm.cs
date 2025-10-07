@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,12 +13,14 @@ namespace IT13VotingAppFinal
 {
     public partial class AdminDashboardForm : Form
     {
+        private VotingSettingsForm votingSettingsForm;
         public AdminDashboardForm()
         {
             InitializeComponent();
             btnVoters.Click += btnVoters_Click;
             btnCandidates.Click += btnCandidates_Click;
             btnResults.Click += btnResults_Click;
+            btnSettings.Click += btnSettings_Click;
             btnLogout.Click += btnLogout_Click;
             this.Load += AdminDashboardForm_Load;
             this.Resize += AdminDashboardForm_Resize;
@@ -50,8 +53,9 @@ namespace IT13VotingAppFinal
 
         private void btnResults_Click(object sender, EventArgs e)
         {
-            var resultsForm = new ResultsForm();
-            resultsForm.ShowDialog();
+            var resultsForm = new ResultsForm("Admin", this);
+            resultsForm.Show();
+            this.Hide();
         }
         private void btnLogout_Click(object sender, EventArgs e)
         {
@@ -92,10 +96,14 @@ namespace IT13VotingAppFinal
             StyleButton(btnVoters, "Voters", Color.MediumSeaGreen, Color.White);
             StyleButton(btnCandidates, "Candidates", Color.SteelBlue, Color.White);
             StyleButton(btnResults, "Results", Color.Orange, Color.White);
+            StyleButton(btnSettings, "Settings", Color.SlateBlue, Color.White);
             StyleButton(btnLogout, "Logout", Color.IndianRed, Color.White);
 
             PositionControls();
         }
+
+
+
         private void PositionControls()
         {
             int paddingLeft = 20;
@@ -116,6 +124,9 @@ namespace IT13VotingAppFinal
             btnResults.Location = new Point(paddingLeft, currentY);
             currentY += btnResults.Height + spacing;
 
+            btnSettings.Location = new Point(paddingLeft, currentY);  // ADD THIS
+            currentY += btnSettings.Height + spacing;
+
             btnLogout.Location = new Point(paddingLeft, currentY);
         }
         private void StyleButton(Button btn, string text, Color backColor, Color foreColor)
@@ -126,23 +137,16 @@ namespace IT13VotingAppFinal
             btn.ForeColor = foreColor;
             btn.FlatStyle = FlatStyle.Flat;
             btn.FlatAppearance.BorderSize = 0;
+            btn.FlatAppearance.MouseOverBackColor = ControlPaint.Dark(backColor, 0.1f);
+            btn.FlatAppearance.MouseDownBackColor = ControlPaint.Dark(backColor, 0.2f);
+            btn.UseVisualStyleBackColor = false;
             btn.Size = new Size(150, 40);
-
-            // Hover effect
-            btn.MouseEnter += (s, e) => { btn.BackColor = ControlPaint.Dark(backColor); };
-            btn.MouseLeave += (s, e) => { btn.BackColor = backColor; };
-
-            // Fix to top-left, so it won’t move
             btn.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btn.Cursor = Cursors.Hand;
 
-            var path = new System.Drawing.Drawing2D.GraphicsPath();
-            int radius = 20;
-            path.AddArc(0, 0, radius, radius, 180, 90);
-            path.AddArc(btn.Width - radius, 0, radius, radius, 270, 90);
-            path.AddArc(btn.Width - radius, btn.Height - radius, radius, radius, 0, 90);
-            path.AddArc(0, btn.Height - radius, radius, radius, 90, 90);
-            path.CloseAllFigures();
-            btn.Region = new Region(path);
+            // Hover effects
+            btn.MouseEnter += (s, e) => { btn.BackColor = ControlPaint.Dark(backColor, 0.1f); };
+            btn.MouseLeave += (s, e) => { btn.BackColor = backColor; };
 
 
         }
@@ -177,5 +181,23 @@ namespace IT13VotingAppFinal
         {
 
         }
+
+        private void btnSettings_Click(object sender, EventArgs e)
+        {
+
+            if (votingSettingsForm == null || votingSettingsForm.IsDisposed)
+            {
+                votingSettingsForm = new VotingSettingsForm();
+                votingSettingsForm.FormClosed += (s, args) => votingSettingsForm = null;
+                votingSettingsForm.Show();
+            }
+            else
+            {
+         
+                votingSettingsForm.BringToFront();
+                votingSettingsForm.Focus();
+            }
+        }
     }
 }
+

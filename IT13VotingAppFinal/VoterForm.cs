@@ -13,12 +13,13 @@ namespace IT13VotingAppFinal
 {
     public partial class VoterForm : Form
     {
+        private ComboBox cmbFilterProgram;
+        private Label lblFilter; // Add this field
+
         public VoterForm()
         {
             InitializeComponent();
-
             dgvVoters.SelectionChanged += dgvVoters_SelectionChanged;
-
             this.Load += VoterForm_Load;
             this.Resize += VoterForm_Resize;
         }
@@ -27,7 +28,7 @@ namespace IT13VotingAppFinal
 
         private void ShowMessage(string message, string title = "Notice")
         {
-            if (_isShowingMessage) return; // prevent duplicates
+            if (_isShowingMessage) return;
             try
             {
                 _isShowingMessage = true;
@@ -38,77 +39,87 @@ namespace IT13VotingAppFinal
                 _isShowingMessage = false;
             }
         }
+
         private void VoterForm_Resize(object sender, EventArgs e)
         {
             PositionControls();
         }
+
         private void PositionControls()
         {
             int centerX = this.ClientSize.Width / 2;
 
-    // === Title ===
-    label1.Left = centerX - (label1.Width / 2);
-    label1.Top = 20;
+            // === Title ===
+            label1.Left = centerX - (label1.Width / 2);
+            label1.Top = 20;
 
-    // === DataGridView directly under Title ===
-    dgvVoters.Left = 50;
-    dgvVoters.Top = label1.Bottom + 30;
-    dgvVoters.Width = this.ClientSize.Width - 100;
-    dgvVoters.Height = this.ClientSize.Height / 3;
+            // === Filter controls ABOVE DataGridView ===
+            int filterTop = label1.Bottom + 20;
 
-    // === Inputs under DataGridView ===
-    int inputTop = dgvVoters.Bottom + 30;
+            // Only position filter controls if they exist
+            if (lblFilter != null && cmbFilterProgram != null)
+            {
+                lblFilter.Left = 50;
+                lblFilter.Top = filterTop + 3;
+                cmbFilterProgram.Left = lblFilter.Right + 10;
+                cmbFilterProgram.Top = filterTop;
+            }
 
-    label2.Left = centerX - 200; label2.Top = inputTop;
-    txtFirstName.Left = centerX; txtFirstName.Top = inputTop;
+            // === DataGridView directly under Filter ===
+            dgvVoters.Left = 50;
+            dgvVoters.Top = (cmbFilterProgram != null) ? cmbFilterProgram.Bottom + 10 : filterTop + 30;
+            dgvVoters.Width = this.ClientSize.Width - 100;
+            dgvVoters.Height = this.ClientSize.Height / 3;
 
-    label3.Left = centerX - 200; label3.Top = inputTop + 50;
-    txtLastName.Left = centerX; txtLastName.Top = inputTop + 50;
+            // === Inputs under DataGridView ===
+            int inputTop = dgvVoters.Bottom + 30;
 
-    label4.Left = centerX - 200; label4.Top = inputTop + 100;
-    txtEmail.Left = centerX; txtEmail.Top = inputTop + 100;
+            label2.Left = centerX - 200;
+            label2.Top = inputTop;
+            txtFirstName.Left = centerX;
+            txtFirstName.Top = inputTop;
 
-    // === Buttons row at bottom ===
-    int buttonsTop = txtEmail.Bottom + 50;
-    int spacing = 140;
+            label3.Left = centerX - 200;
+            label3.Top = inputTop + 50;
+            txtLastName.Left = centerX;
+            txtLastName.Top = inputTop + 50;
 
-    btnAdd.Location = new Point(centerX - (spacing * 2), buttonsTop);
-    btnUpdate.Location = new Point(centerX - spacing, buttonsTop);
-    btnDelete.Location = new Point(centerX, buttonsTop);
-    btnRefresh.Location = new Point(centerX + spacing, buttonsTop);
-    btnClear.Location = new Point(centerX - btnClear.Width - 10, buttonsTop + 60);
-    button1.Location = new Point(btnClear.Right + 20, btnClear.Top);    
+            // === Buttons row at bottom ===
+            int buttonsTop = txtLastName.Bottom + 50;
+            int spacing = 140;
+
+            btnAdd.Location = new Point(centerX - (spacing * 2), buttonsTop);
+            btnUpdate.Location = new Point(centerX - spacing, buttonsTop);
+            btnDelete.Location = new Point(centerX, buttonsTop);
+            btnRefresh.Location = new Point(centerX + spacing, buttonsTop);
+            btnClear.Location = new Point(centerX - btnClear.Width - 10, buttonsTop + 60);
+            button1.Location = new Point(btnClear.Right + 20, btnClear.Top);
         }
+
         private void LoadVoters()
         {
-            var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetAllVoters"); // you need sp_GetAllVoters
-
+            var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetAllVoters");
             dgvVoters.DataSource = dt;
         }
+
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            
             string firstName = txtFirstName.Text.Trim();
             string lastName = txtLastName.Text.Trim();
-            string email = txtEmail.Text.Trim();
 
-            // Validation
-            if (string.IsNullOrEmpty(firstName) ||
-                string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
             {
-              ShowMessage("Please fill all fields.");
+                ShowMessage("Please fill all fields.");
                 return;
             }
 
             try
             {
                 DataAccess.ExecuteProcedureNonQuery("sp_AddVoter",
-                    
-                   new MySqlParameter("@in_fn", txtFirstName.Text.Trim()),
-                   new MySqlParameter("@in_ln", txtLastName.Text.Trim()),
-                   new MySqlParameter("@in_email", txtEmail.Text.Trim())
-                   );
-                 LoadVoters();
+                   new MySqlParameter("@in_fn", firstName),
+                   new MySqlParameter("@in_ln", lastName)
+                );
+                LoadVoters();
                 ClearFields();
                 ShowMessage("Voter added successfully.");
             }
@@ -117,7 +128,6 @@ namespace IT13VotingAppFinal
                 ShowMessage("Error adding voter: " + ex.Message);
             }
         }
-        
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
@@ -127,22 +137,18 @@ namespace IT13VotingAppFinal
                 return;
             }
 
-            // Get the Id from the selected row in the DataGridView
             var row = dgvVoters.SelectedRows[0];
-            string id = row.Cells["VoterId"].Value.ToString(); 
-            
+            string id = row.Cells["VoterId"].Value.ToString();
             string firstName = txtFirstName.Text.Trim();
             string lastName = txtLastName.Text.Trim();
-            string email = txtEmail.Text.Trim();
 
             try
             {
                 DataAccess.ExecuteProcedureNonQuery("sp_UpdateVoter",
                    new MySqlParameter("@in_id", id),
-                 
                    new MySqlParameter("@in_fn", firstName),
-                   new MySqlParameter("@in_ln", lastName),
-                   new MySqlParameter("@in_email", email));
+                   new MySqlParameter("@in_ln", lastName)
+                );
                 LoadVoters();
                 ClearFields();
                 ShowMessage("Voter updated successfully.");
@@ -151,7 +157,6 @@ namespace IT13VotingAppFinal
             {
                 ShowMessage("Error updating voter: " + ex.Message);
             }
-
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
@@ -162,9 +167,8 @@ namespace IT13VotingAppFinal
                 return;
             }
 
-            // Get the Id from the selected row in the DataGridView
             var row = dgvVoters.SelectedRows[0];
-            string id = row.Cells["VoterId"].Value.ToString(); // Use the actual column name
+            string id = row.Cells["VoterId"].Value.ToString();
 
             try
             {
@@ -183,19 +187,20 @@ namespace IT13VotingAppFinal
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             LoadVoters();
+            cmbFilterProgram.SelectedIndex = 0; // Reset filter to "All"
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
             ClearFields();
         }
+
         private void ClearFields()
         {
-        
             txtFirstName.Text = "";
             txtLastName.Text = "";
-            txtEmail.Text = "";
         }
+
         private void dgvVoters_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvVoters.SelectedRows.Count > 0)
@@ -203,7 +208,6 @@ namespace IT13VotingAppFinal
                 var row = dgvVoters.SelectedRows[0];
                 txtFirstName.Text = row.Cells["FirstName"].Value.ToString();
                 txtLastName.Text = row.Cells["LastName"].Value.ToString();
-                txtEmail.Text = row.Cells["Email"].Value.ToString();
             }
         }
 
@@ -218,7 +222,7 @@ namespace IT13VotingAppFinal
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox1.SendToBack();
 
-            // ✅ Re-parent all labels to the PictureBox
+            // Re-parent all labels to the PictureBox
             foreach (Control ctrl in this.Controls)
             {
                 if (ctrl is Label lbl)
@@ -245,15 +249,12 @@ namespace IT13VotingAppFinal
             label3.BackColor = Color.Transparent;
             label3.AutoSize = true;
 
-            label4.Text = "Email";
-            label4.Font = new Font("Segoe UI", 11, FontStyle.Bold);
-            label4.ForeColor = Color.White;
-label4.BackColor = Color.Transparent;
-            label4.AutoSize = true;
-
+            // Email label and textbox hidden
+            label4.Visible = false;
+            txtEmail.Visible = false;
 
             // === TEXTBOXES ===
-            foreach (TextBox txt in new[] { txtFirstName, txtLastName, txtEmail })
+            foreach (TextBox txt in new[] { txtFirstName, txtLastName })
             {
                 txt.Font = new Font("Segoe UI", 10);
                 txt.Width = 180;
@@ -265,9 +266,7 @@ label4.BackColor = Color.Transparent;
             StyleButton(btnDelete, "Delete", Color.IndianRed, Color.White);
             StyleButton(btnRefresh, "Refresh", Color.Orange, Color.White);
             StyleButton(btnClear, "Clear", Color.Gray, Color.White);
-
             StyleButton(button1, "Close", Color.DarkRed, Color.White);
-            MakeRounded(button1, 15);
 
             // === DATAGRIDVIEW ===
             dgvVoters.BackgroundColor = Color.White;
@@ -281,69 +280,85 @@ label4.BackColor = Color.Transparent;
             dgvVoters.EnableHeadersVisualStyles = false;
             dgvVoters.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-              MakeRounded(btnAdd, 15);
-    MakeRounded(btnUpdate, 15);
-    MakeRounded(btnDelete, 15);
-    MakeRounded(btnRefresh, 15);
-    MakeRounded(btnClear, 15);
+            // === FILTER LABEL (CREATE FIRST) ===
+            lblFilter = new Label();
+            lblFilter.Text = "Filter by Program:";
+            lblFilter.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            lblFilter.ForeColor = Color.White;
+            lblFilter.BackColor = Color.Transparent;
+            lblFilter.AutoSize = true;
+            lblFilter.Parent = pictureBox1;
 
-    MakeRounded(txtFirstName, 10);
-    MakeRounded(txtLastName, 10);
-    MakeRounded(txtEmail, 10);
+            // === FILTER COMBOBOX (CREATE SECOND) ===
+            cmbFilterProgram = new ComboBox();
+            cmbFilterProgram.Name = "cmbFilterProgram";
+            cmbFilterProgram.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbFilterProgram.Items.Add("All");
+            cmbFilterProgram.Items.Add("CS");
+            cmbFilterProgram.Items.Add("IT");
+            cmbFilterProgram.SelectedIndex = 0;
+            cmbFilterProgram.Width = 150;
+            cmbFilterProgram.Font = new Font("Segoe UI", 10);
+            cmbFilterProgram.SelectedIndexChanged += cmbFilterProgram_SelectedIndexChanged;
+
+            // Add controls to form
+            this.Controls.Add(cmbFilterProgram);
 
             PositionControls();
             LoadVoters();
         }
 
-        private void dgvVoters_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void cmbFilterProgram_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (cmbFilterProgram.SelectedItem == null) return;
 
+            string selectedProgram = cmbFilterProgram.SelectedItem.ToString();
+
+            try
+            {
+                if (selectedProgram == "All")
+                {
+                    LoadVoters(); // Use existing LoadVoters method
+                }
+                else
+                {
+                    // Try stored procedure first
+                    try
+                    {
+                        var dt = DataAccess.ExecuteProcedureToDataTable(
+                            "sp_GetVotersByProgram",
+                            new MySqlParameter("@Program", selectedProgram)
+                        );
+                        dgvVoters.DataSource = dt;
+                    }
+                    catch
+                    {
+                        // If stored procedure doesn't exist, use DataView filtering
+                        var allData = DataAccess.ExecuteProcedureToDataTable("sp_GetAllVoters");
+                        DataView dv = allData.DefaultView;
+                        dv.RowFilter = $"Program = '{selectedProgram}'";
+                        dgvVoters.DataSource = dv.ToTable();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Error filtering voters: " + ex.Message);
+            }
         }
 
-        private void label4_Click(object sender, EventArgs e)
-        {
+        private void dgvVoters_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void label4_Click(object sender, EventArgs e) { }
+        private void label3_Click(object sender, EventArgs e) { }
+        private void label2_Click(object sender, EventArgs e) { }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void txtEmail_TextChanged(object sender, EventArgs e) { }
+        private void txtLastName_TextChanged(object sender, EventArgs e) { }
+        private void txtFirstName_TextChanged(object sender, EventArgs e) { }
+        private void txtVoterNumber_TextChanged(object sender, EventArgs e) { }
+        private void pictureBox1_Click(object sender, EventArgs e) { }
+        private void label1_Click_1(object sender, EventArgs e) { }
 
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtEmail_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtLastName_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtFirstName_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtVoterNumber_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
         private void StyleButton(Button btn, string text, Color backColor, Color foreColor)
         {
             btn.Text = text;
@@ -357,163 +372,6 @@ label4.BackColor = Color.Transparent;
             btn.MouseEnter += (s, e) => { btn.BackColor = ControlPaint.Dark(backColor); };
             btn.MouseLeave += (s, e) => { btn.BackColor = backColor; };
         }
-        private void ArrangeLayout()
-        {
-            // Panel for inputs
-            FlowLayoutPanel inputPanel = new FlowLayoutPanel();
-            inputPanel.Dock = DockStyle.Top;
-            inputPanel.Height = 70;
-            inputPanel.Padding = new Padding(10);
-            inputPanel.FlowDirection = FlowDirection.LeftToRight;
-            inputPanel.WrapContents = false;
-
-            // Add fields in row
-            inputPanel.Controls.Add(label2);
-           
-            inputPanel.Controls.Add(label3);
-            inputPanel.Controls.Add(txtFirstName);
-            inputPanel.Controls.Add(label4);
-            inputPanel.Controls.Add(txtLastName);
-            inputPanel.Controls.Add(this.Controls["labelEmail"]);
-            inputPanel.Controls.Add(txtEmail);
-
-            this.Controls.Add(inputPanel);
-
-            // Panel for buttons
-            FlowLayoutPanel buttonPanel = new FlowLayoutPanel();
-            buttonPanel.Dock = DockStyle.Top;
-            buttonPanel.Height = 70;
-            buttonPanel.Padding = new Padding(10);
-            buttonPanel.FlowDirection = FlowDirection.LeftToRight;
-            buttonPanel.WrapContents = false;
-
-            buttonPanel.Controls.AddRange(new Control[] { btnAdd, btnUpdate, btnDelete, btnRefresh, btnClear });
-
-            this.Controls.Add(buttonPanel);
-        }
-
-
-        private void StyleControls()
-        {
-          
-            // Labels
-            foreach (Label lbl in new[] { label2, label3, label4 })
-            {
-                lbl.Font = new Font("Segoe UI", 10, FontStyle.Regular);
-                lbl.AutoSize = true;
-            }
-
-            // Email label (make sure label4 is Email in Designer)
-            label2.Text = "Voter Number:";
-            label3.Text = "First Name:";
-            label4.Text = "Last Name:";
-            // Add a label for Email if missing
-            Label lblEmail = new Label
-            {
-                Text = "Email:",
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
-                AutoSize = true,
-                Name = "labelEmail"
-            };
-            this.Controls.Add(lblEmail);
-
-            // Textboxes
-            foreach (TextBox txt in new[] { txtFirstName, txtLastName, txtEmail })
-            {
-                txt.Font = new Font("Segoe UI", 10);
-                txt.Width = 180;
-            }
-
-            // Buttons styling
-            foreach (Button btn in new[] { btnAdd, btnUpdate, btnDelete, btnRefresh, btnClear })
-            {
-                btn.Width = 120;
-                btn.Height = 40;
-                btn.FlatStyle = FlatStyle.Flat;
-                btn.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-                btn.FlatAppearance.BorderSize = 0;
-                btn.ForeColor = Color.White;
-            }
-
-            btnAdd.BackColor = Color.FromArgb(0, 123, 255);      // Blue
-            btnUpdate.BackColor = Color.FromArgb(40, 167, 69);   // Green
-            btnDelete.BackColor = Color.FromArgb(220, 53, 69);   // Red
-            btnRefresh.BackColor = Color.FromArgb(108, 117, 125); // Gray
-            btnClear.BackColor = Color.FromArgb(255, 193, 7);    // Yellow
-
-            // DataGridView styling
-            dgvVoters.BackgroundColor = Color.White;
-            dgvVoters.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvVoters.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            dgvVoters.ColumnHeadersDefaultCellStyle.BackColor = Color.LightGray;
-            dgvVoters.EnableHeadersVisualStyles = false;
-            dgvVoters.DefaultCellStyle.Font = new Font("Segoe UI", 10);
-            dgvVoters.DefaultCellStyle.SelectionBackColor = Color.FromArgb(0, 123, 255);
-            dgvVoters.DefaultCellStyle.SelectionForeColor = Color.White;
-            dgvVoters.Dock = DockStyle.Top;
-            dgvVoters.Height = this.ClientSize.Height / 2;
-        }
-        private void CenterControls()
-        {
-            int centerX = this.ClientSize.Width / 2;
-
-         
-
-            // Input fields (stacked vertically, like screenshot)
-            int inputTop = 80;
-
-            label2.Left = centerX - 200; label2.Top = inputTop;
-       
-
-            label3.Left = centerX - 200; label3.Top = inputTop + 50;
-            txtFirstName.Left = centerX; txtFirstName.Top = inputTop + 45;
-
-            label4.Left = centerX - 200; label4.Top = inputTop + 100;
-            txtLastName.Left = centerX; txtLastName.Top = inputTop + 95;
-
-            var lblEmail = (Label)this.Controls["labelEmail"];
-            lblEmail.Left = centerX - 200; lblEmail.Top = inputTop + 150;
-            txtEmail.Left = centerX; txtEmail.Top = inputTop + 145;
-
-            // Buttons row
-            int buttonsTop = inputTop + 210;
-            int totalWidth = (btnAdd.Width + btnUpdate.Width + btnDelete.Width + btnRefresh.Width + btnClear.Width) + (20 * 4);
-            int buttonsLeft = centerX - (totalWidth / 2);
-
-            btnAdd.Left = buttonsLeft; btnAdd.Top = buttonsTop;
-            btnUpdate.Left = btnAdd.Right + 20; btnUpdate.Top = buttonsTop;
-            btnDelete.Left = btnUpdate.Right + 20; btnDelete.Top = buttonsTop;
-            btnRefresh.Left = btnDelete.Right + 20; btnRefresh.Top = buttonsTop;
-            btnClear.Left = btnRefresh.Right + 20; btnClear.Top = buttonsTop;
-            button1.Left = btnClear.Right + 20; button1.Top = buttonsTop;
-
-            // DataGridView (below everything)
-            dgvVoters.Left = 50;
-            dgvVoters.Top = buttonsTop + 80;
-            dgvVoters.Width = this.ClientSize.Width - 100;
-            dgvVoters.Height = this.ClientSize.Height - dgvVoters.Top - 50;
-        }
-
-        private void MakeRounded(Control ctrl, int radius)
-        {
-            var path = new System.Drawing.Drawing2D.GraphicsPath();
-            path.StartFigure();
-            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
-            path.AddLine(radius, 0, ctrl.Width - radius, 0);
-            path.AddArc(new Rectangle(ctrl.Width - radius, 0, radius, radius), -90, 90);
-            path.AddLine(ctrl.Width, radius, ctrl.Width, ctrl.Height - radius);
-            path.AddArc(new Rectangle(ctrl.Width - radius, ctrl.Height - radius, radius, radius), 0, 90);
-            path.AddLine(ctrl.Width - radius, ctrl.Height, radius, ctrl.Height);
-            path.AddArc(new Rectangle(0, ctrl.Height - radius, radius, radius), 90, 90);
-            path.CloseFigure();
-
-            ctrl.Region = new Region(path);
-        }
-
-        private void label1_Click_1(object sender, EventArgs e)
-        {
-
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -521,4 +379,3 @@ label4.BackColor = Color.Transparent;
         }
     }
 }
-

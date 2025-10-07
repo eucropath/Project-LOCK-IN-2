@@ -176,7 +176,7 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::IT13VotingAppFinal.Properties.Resources.vOTER_bG;
+            this.pictureBox1.Image = global::IT13VotingAppFinal.Properties.Resources.BG_new_admin;
             this.pictureBox1.Location = new System.Drawing.Point(12, 12);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(100, 50);

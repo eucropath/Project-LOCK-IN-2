@@ -64,7 +64,7 @@
             this.btnRefresh.TabIndex = 1;
             this.btnRefresh.Text = "Refresh";
             this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click_1);
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
             // cmbPositions
             // 
@@ -74,7 +74,7 @@
             this.cmbPositions.Name = "cmbPositions";
             this.cmbPositions.Size = new System.Drawing.Size(92, 21);
             this.cmbPositions.TabIndex = 2;
-            this.cmbPositions.SelectedIndexChanged += new System.EventHandler(this.cmbPositions_SelectedIndexChanged_1);
+            this.cmbPositions.SelectedIndexChanged += new System.EventHandler(this.cmbPositions_SelectedIndexChanged);
             // 
             // lblWinner
             // 
@@ -113,7 +113,7 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::IT13VotingAppFinal.Properties.Resources.result_bg_2_oh_boy;
+            this.pictureBox1.Image = global::IT13VotingAppFinal.Properties.Resources.newr_sesult_bg;
             this.pictureBox1.Location = new System.Drawing.Point(12, 9);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(100, 50);

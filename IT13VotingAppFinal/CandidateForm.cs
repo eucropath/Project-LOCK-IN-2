@@ -194,15 +194,6 @@ namespace IT13VotingAppFinal
             dgvCandidates.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             dgvCandidates.EnableHeadersVisualStyles = false;
             dgvCandidates.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            MakeRounded(btnAdd, 15);
-            MakeRounded(btnUpdate, 15);
-            MakeRounded(btnDelete, 15);
-            MakeRounded(Close, 15);
-
-            MakeRounded(txtFirstName, 10);
-            MakeRounded(txtLastName, 10);
-            MakeRounded(txtPosition, 10);
-
 
             CenterControls();
             LoadCandidates();
@@ -306,21 +297,6 @@ namespace IT13VotingAppFinal
 
         }
 
-        private void MakeRounded(Control ctrl, int radius)
-        {
-            var path = new System.Drawing.Drawing2D.GraphicsPath();
-            path.StartFigure();
-            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
-            path.AddLine(radius, 0, ctrl.Width - radius, 0);
-            path.AddArc(new Rectangle(ctrl.Width - radius, 0, radius, radius), -90, 90);
-            path.AddLine(ctrl.Width, radius, ctrl.Width, ctrl.Height - radius);
-            path.AddArc(new Rectangle(ctrl.Width - radius, ctrl.Height - radius, radius, radius), 0, 90);
-            path.AddLine(ctrl.Width - radius, ctrl.Height, radius, ctrl.Height);
-            path.AddArc(new Rectangle(0, ctrl.Height - radius, radius, radius), 90, 90);
-            path.CloseFigure();
-
-            ctrl.Region = new Region(path);
-        }
 
         private void Close_Click(object sender, EventArgs e)
         {

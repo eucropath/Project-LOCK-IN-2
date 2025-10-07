@@ -32,6 +32,7 @@
             this.btnResults = new System.Windows.Forms.Button();
             this.btnLogout = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.lblResultsInfo = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -54,7 +55,6 @@
             this.btnResults.Name = "btnResults";
             this.btnResults.Size = new System.Drawing.Size(66, 19);
             this.btnResults.TabIndex = 5;
-            this.btnResults.Text = "Results";
             this.btnResults.UseVisualStyleBackColor = true;
             this.btnResults.Click += new System.EventHandler(this.btnResults_Click);
             // 
@@ -79,9 +79,20 @@
             this.label1.Text = "label1";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
+            // lblResultsInfo
+            // 
+            this.lblResultsInfo.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblResultsInfo.ForeColor = System.Drawing.Color.White;
+            this.lblResultsInfo.Location = new System.Drawing.Point(0, 0);
+            this.lblResultsInfo.Name = "lblResultsInfo";
+            this.lblResultsInfo.Size = new System.Drawing.Size(500, 35);
+            this.lblResultsInfo.TabIndex = 9;
+            this.lblResultsInfo.Text = "Click Results button to check availability";
+            this.lblResultsInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::IT13VotingAppFinal.Properties.Resources.User_Bg2;
+            this.pictureBox1.Image = global::IT13VotingAppFinal.Properties.Resources.uSER_DASH_BG1;
             this.pictureBox1.Location = new System.Drawing.Point(24, 21);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(100, 50);
@@ -94,6 +105,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(600, 366);
+            this.Controls.Add(this.lblResultsInfo);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnLogout);
@@ -116,5 +128,6 @@
         private System.Windows.Forms.Button btnLogout;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label lblResultsInfo;
     }
 }

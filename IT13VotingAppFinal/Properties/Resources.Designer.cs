@@ -73,6 +73,46 @@ namespace IT13VotingAppFinal.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Adnun_bg {
+            get {
+                object obj = ResourceManager.GetObject("Adnun bg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap bg_login {
+            get {
+                object obj = ResourceManager.GetObject("bg login", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap BG_new_admin {
+            get {
+                object obj = ResourceManager.GetObject("BG new admin", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap BG_settings {
+            get {
+                object obj = ResourceManager.GetObject("BG settings", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Cand_BG_2 {
             get {
                 object obj = ResourceManager.GetObject("Cand BG 2", resourceCulture);
@@ -106,6 +146,16 @@ namespace IT13VotingAppFinal.Properties {
         internal static System.Drawing.Bitmap LOGIN_BACK_ACK {
             get {
                 object obj = ResourceManager.GetObject("LOGIN BACK ACK", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap newr_sesult_bg {
+            get {
+                object obj = ResourceManager.GetObject("newr sesult bg", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -163,6 +213,36 @@ namespace IT13VotingAppFinal.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ResultssBg_new {
+            get {
+                object obj = ResourceManager.GetObject("ResultssBg new", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Setting_NEw_Bg {
+            get {
+                object obj = ResourceManager.GetObject("Setting NEw Bg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap test_bg {
+            get {
+                object obj = ResourceManager.GetObject("test bg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap User_Bg2 {
             get {
                 object obj = ResourceManager.GetObject("User Bg2", resourceCulture);
@@ -173,9 +253,39 @@ namespace IT13VotingAppFinal.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap uSER_DASH_BG {
+            get {
+                object obj = ResourceManager.GetObject("uSER DASH BG", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap uSER_DASH_BG1 {
+            get {
+                object obj = ResourceManager.GetObject("uSER DASH BG1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap vOTER_bG {
             get {
                 object obj = ResourceManager.GetObject("vOTER bG", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Voter_bg_New_lol {
+            get {
+                object obj = ResourceManager.GetObject("Voter bg New lol", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -196,6 +306,16 @@ namespace IT13VotingAppFinal.Properties {
         internal static System.Drawing.Bitmap VOTING_BG {
             get {
                 object obj = ResourceManager.GetObject("VOTING BG", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap voting_bg_new {
+            get {
+                object obj = ResourceManager.GetObject("voting bg new", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

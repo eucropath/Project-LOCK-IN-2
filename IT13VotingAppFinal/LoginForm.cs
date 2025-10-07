@@ -22,17 +22,22 @@ namespace IT13VotingAppFinal
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            string username = txtUsername.Text.Trim();
-            string password = txtPassword.Text.Trim();
-
-
-
-            if (string.IsNullOrEmpty(username))
+            System.Diagnostics.Debug.WriteLine("Login button clicked!");
+            if (!this.Visible || this.WindowState == FormWindowState.Minimized)
             {
-                MessageBox.Show("Fill in all the fields.");
                 return;
             }
 
+            string username = txtUsername.Text.Trim();
+            string password = txtPassword.Text.Trim();
+
+            System.Diagnostics.Debug.WriteLine($"Username: '{username}', Password: '{password}'"); // Debug
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Please enter both username and password.", "Login Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             try
             {
                 // First, try to find user in voters table
@@ -111,12 +116,12 @@ namespace IT13VotingAppFinal
 
         private void txtUsername_TextChanged(object sender, EventArgs e)
         {
-            txtUsername.KeyDown += txtFields_KeyDown;
+            
         }
 
         private void txtPassword_TextChanged(object sender, EventArgs e)
         {
-            txtPassword.KeyDown += txtFields_KeyDown;
+        
 
         }
 
@@ -130,14 +135,7 @@ namespace IT13VotingAppFinal
         private void LoginForm_Load(object sender, EventArgs e)
         {
 
-            // Rounded corners for textboxes
-            MakeRounded(txtUsername, 15);
-            MakeRounded(txtPassword, 15);
-
-            // Rounded corners for buttons
-            MakeRounded(btnLogin, 20);
-            MakeRounded(Register, 20);
-            MakeRounded(btnExit, 20);
+            
 
             this.Text = "Login";
             this.WindowState = FormWindowState.Normal;
@@ -158,6 +156,9 @@ namespace IT13VotingAppFinal
 
             StyleLabel(label3, "Enter Password:", 0, 0);
             label3.ForeColor = Color.White  ;
+
+            txtUsername.KeyDown += txtFields_KeyDown;
+            txtPassword.KeyDown += txtFields_KeyDown;
 
             // === Textboxes ===
             StyleTextBox(txtUsername, 0, 0);
@@ -181,20 +182,6 @@ namespace IT13VotingAppFinal
             this.Resize += (s, ev) => CenterControls();
         }
 
-        private void MakeRounded(Control ctrl, int radius)
-        {
-            var path = new System.Drawing.Drawing2D.GraphicsPath();
-            path.StartFigure();
-            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
-            path.AddLine(radius, 0, ctrl.Width - radius, 0);
-            path.AddArc(new Rectangle(ctrl.Width - radius, 0, radius, radius), -90, 90);
-            path.AddLine(ctrl.Width, radius, ctrl.Width, ctrl.Height - radius);
-            path.AddArc(new Rectangle(ctrl.Width - radius, ctrl.Height - radius, radius, radius), 0, 90);
-            path.AddLine(ctrl.Width - radius, ctrl.Height, radius, ctrl.Height);
-            path.AddArc(new Rectangle(0, ctrl.Height - radius, radius, radius), 90, 90);
-            path.CloseFigure();
-            ctrl.Region = new Region(path);
-        }
 
         private void Register_Click(object sender, EventArgs e)
         {

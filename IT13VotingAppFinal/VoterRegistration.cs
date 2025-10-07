@@ -7,7 +7,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading.Tasks;   
 using System.Windows.Forms;
 
 
@@ -19,50 +19,44 @@ namespace IT13VotingAppFinal
         {
             InitializeComponent();
             this.Load += VoterRegistration_Load;
+
         }
-            private void CenterControls()
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.ComboBox cmbProgram;
+        private System.Windows.Forms.ComboBox cmbYearLevel;
+
+
+        private void CenterControls()
         {
             int centerX = this.ClientSize.Width / 2;
-
-
             label1.Left = centerX - (label1.Width / 2);
             label1.Top = 40;
 
-            int startY = 130;
+            int startY = 120;
             int spacingY = 60;
 
-       
-            label2.Left = centerX - 200;
-            label2.Top = startY;
-            txtFirstName.Left = centerX;
-            txtFirstName.Top = startY - 5;
+            // Arrange labels + textboxes
+            (Label lbl, Control ctrl)[] fields = {
+        (label2, txtFirstName),
+        (label4, txtLastName),
+        (label9, cmb),
+        (label10, comboBox1),
+        (label3, txtEmail),
+        (label5, txtUsername),
+        (label6, txtPassword)
+    };
 
+            for (int i = 0; i < fields.Length; i++)
+            {
+                fields[i].lbl.Left = centerX - 200;
+                fields[i].lbl.Top = startY + (spacingY * i);
+                fields[i].ctrl.Left = centerX;
+                fields[i].ctrl.Top = fields[i].lbl.Top - 5;
+            }
 
-            label4.Left = centerX - 200;
-            label4.Top = startY + spacingY;
-            txtLastName.Left = centerX;
-            txtLastName.Top = startY + spacingY - 5;
-
-
-            label3.Left = centerX - 200;
-            label3.Top = startY + (spacingY * 2);
-            txtEmail.Left = centerX;
-            txtEmail.Top = startY + (spacingY * 2) - 5;
-
-
-            label5.Left = centerX - 200;
-            label5.Top = startY + (spacingY * 3);
-            txtUsername.Left = centerX;
-            txtUsername.Top = startY + (spacingY * 3) - 5;
-
-
-            label6.Left = centerX - 200;
-            label6.Top = startY + (spacingY * 4);
-            txtPassword.Left = centerX;
-            txtPassword.Top = startY + (spacingY * 4) - 5;
-
-            
-            int buttonsTop = startY + (spacingY * 5) + 20;
+            // Position buttons neatly centered below password
+            int buttonsTop = fields.Last().lbl.Top + 70;
             int totalWidth = (button1.Width + btnRegister.Width + btnExit.Width) + 40;
             int buttonsLeft = centerX - (totalWidth / 2);
 
@@ -75,9 +69,9 @@ namespace IT13VotingAppFinal
             btnExit.Left = btnRegister.Right + 20;
             btnExit.Top = buttonsTop;
 
-     
+            // Status label below buttons
             lblStatus.Left = centerX - (lblStatus.Width / 2);
-            lblStatus.Top = buttonsTop + 70;
+            lblStatus.Top = buttonsTop + 60;
         }
 
         
@@ -99,21 +93,91 @@ namespace IT13VotingAppFinal
         {
             lblStatus.Text = "";
             // Validate input
-            if (string.IsNullOrWhiteSpace(txtFirstName.Text) ||
-                string.IsNullOrWhiteSpace(txtLastName.Text) ||
-                string.IsNullOrWhiteSpace(txtEmail.Text) ||
-                string.IsNullOrWhiteSpace(txtUsername.Text) ||
-                string.IsNullOrWhiteSpace(txtPassword.Text))
-                
+            if (string.IsNullOrWhiteSpace(txtFirstName.Text))
             {
-                lblStatus.Text = "Please fill in all fields.";
-                lblStatus.ForeColor = System.Drawing.Color.Red;
+                lblStatus.Text = "First name is required.";
+                lblStatus.ForeColor = Color.Red;
+                txtFirstName.Focus();
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(txtLastName.Text))
+            {
+                lblStatus.Text = "Last name is required.";
+                lblStatus.ForeColor = Color.Red;
+                txtLastName.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtEmail.Text))
+            {
+                lblStatus.Text = "Email is required.";
+                lblStatus.ForeColor = Color.Red;
+                txtEmail.Focus();
+                return;
+            }
+
+            if (cmb.SelectedIndex < 0)
+            {
+                lblStatus.Text = "Please select a program.";
+                lblStatus.ForeColor = Color.Red;
+                cmb.Focus();
+                return;
+            }
+
+            if (comboBox1.SelectedIndex < 0)
+            {
+                lblStatus.Text = "Please select a year level.";
+                lblStatus.ForeColor = Color.Red;
+                comboBox1.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtUsername.Text))
+            {
+                lblStatus.Text = "Username is required.";
+                lblStatus.ForeColor = Color.Red;
+                txtUsername.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtPassword.Text))
+            {
+                lblStatus.Text = "Password is required.";
+                lblStatus.ForeColor = Color.Red;
+                txtPassword.Focus();
+                return;
+            }
+
+            // === Username length ===
+            if (txtUsername.Text.Trim().Length < 4)
+            {
+                lblStatus.Text = "Username must be at least 4 characters long.";
+                lblStatus.ForeColor = Color.Red;
+                txtUsername.Focus();
+                return;
+            }
+
+            // === Email check ===
+            if (!IsValidEmail(txtEmail.Text.Trim()))
+            {
+                lblStatus.Text = "Please enter a valid email address.";
+                lblStatus.ForeColor = Color.Red;
+                txtEmail.Focus();
+                return;
+            }
+
+            // === Password strength ===
+            string passwordError;
+            if (!ValidatePassword(txtPassword.Text, out passwordError))
+            {
+                lblStatus.Text = passwordError;
+                lblStatus.ForeColor = Color.Red;
+                txtPassword.Focus();
+                return;
+            }
             try
             {
-
                 string passwordHash;
                 using (var sha256 = System.Security.Cryptography.SHA256.Create())
                 {
@@ -121,41 +185,141 @@ namespace IT13VotingAppFinal
                     var hashBytes = sha256.ComputeHash(bytes);
                     passwordHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
                 }
+
+                string program = cmb.SelectedItem.ToString();
+
+                // Convert "BSCS" or "BSIT" to just "CS" or "IT" for the database
+                if (program.Contains("CS"))
+                    program = "CS";
+                else if (program.Contains("IT"))
+                    program = "IT";
+
+                int yearLevel = Convert.ToInt32(comboBox1.SelectedItem.ToString());
+
+                // FIXED: All parameters must be inside the ExecuteProcedureNonQuery call
                 int rowsAffected = DataAccess.ExecuteProcedureNonQuery("sp_RegisterVoter",
-                    new MySqlParameter("p_FirstName", txtFirstName.Text.Trim()),
-                    new MySqlParameter("p_LastName", txtLastName.Text.Trim()),
-                    new MySqlParameter("p_Email", txtEmail.Text.Trim()),
-                    new MySqlParameter("p_Username", txtUsername.Text.Trim()),
-                    new MySqlParameter("p_PasswordHash", passwordHash));
-                    new MySqlParameter("@Role", "Voter");
+                    new MySqlParameter("@p_FirstName", txtFirstName.Text.Trim()),
+                    new MySqlParameter("@p_LastName", txtLastName.Text.Trim()),
+                    new MySqlParameter("@p_Email", txtEmail.Text.Trim()),
+                    new MySqlParameter("@p_Program", program),
+                    new MySqlParameter("@p_YearLevel", yearLevel),
+                    new MySqlParameter("@p_Username", txtUsername.Text.Trim()),
+                    new MySqlParameter("@p_PasswordHash", passwordHash)
+                ); // ← Notice: closing parenthesis is HERE, after all parameters
 
                 if (rowsAffected > 0)
                 {
-                    //added
                     MessageBox.Show("Registration successful! Now please log in.",
                                     "Success",
                                     MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);//Added
-                    lblStatus.Text = "Registration successful! You can now log in.";
+                                    MessageBoxIcon.Information);
+
+                    // Clear fields
+                    txtFirstName.Text = "";
+                    txtLastName.Text = "";
+                    txtEmail.Text = "";
+                    cmb.SelectedIndex = 0;
+                    comboBox1.SelectedIndex = 0;
+                    txtUsername.Text = "";
+                    txtPassword.Text = "";
+                    lblStatus.Text = "";
+
+                    // Go to login
                     this.Hide();
                     var loginForm = new LoginForm();
                     loginForm.Show();
-                    lblStatus.ForeColor = System.Drawing.Color.Green;
-                    txtFirstName.Text = txtLastName.Text = txtEmail.Text = "";
                 }
                 else
                 {
-                    lblStatus.Text = "Registration failed.";
+                    lblStatus.Text = "Registration failed. Please try again.";
                     lblStatus.ForeColor = System.Drawing.Color.Red;
                 }
             }
             catch (MySqlException ex)
             {
                 if (ex.Number == 1062) // Duplicate entry
-                    lblStatus.Text = "Email address is already registered.";
+                {
+                    if (ex.Message.Contains("Username"))
+                    {
+                        lblStatus.Text = "Username already exists. Please choose another.";
+                    }
+                    else if (ex.Message.Contains("Email"))
+                    {
+                        lblStatus.Text = "Email address is already registered.";
+                    }
+                    else
+                    {
+                        lblStatus.Text = "Username or email already exists.";
+                    }
+                }
                 else
-                    lblStatus.Text = $"Error: {ex.Message}";
+                {
+                    lblStatus.Text = $"Database Error: {ex.Message}";
+                }
                 lblStatus.ForeColor = System.Drawing.Color.Red;
+            }
+            catch (Exception ex)
+            {
+                lblStatus.Text = $"Error: {ex.Message}";
+                lblStatus.ForeColor = System.Drawing.Color.Red;
+            }
+        }
+        private bool ValidatePassword(string password, out string errorMessage)
+        {
+            errorMessage = "";
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                errorMessage = "Password cannot be empty.";
+                return false;
+            }
+
+            if (password.Length < 8)
+            {
+                errorMessage = "Password must be at least 8 characters long.";
+                return false;
+            }
+
+            // Check for at least one uppercase letter
+            if (!password.Any(char.IsUpper))
+            {
+                errorMessage = "Password must contain at least one uppercase letter.";
+                return false;
+            }
+
+            // Check for at least one lowercase letter
+            if (!password.Any(char.IsLower))
+            {
+                errorMessage = "Password must contain at least one lowercase letter.";
+                return false;
+            }
+
+            // Check for at least one digit
+            if (!password.Any(char.IsDigit))
+            {
+                errorMessage = "Password must contain at least one number.";
+                return false;
+            }
+
+            // Optional: Check for special character
+            if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
+            {
+                errorMessage = "Password must contain at least one special character.";
+                return false;
+            }
+
+            return true;
+        }
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -173,11 +337,13 @@ namespace IT13VotingAppFinal
 
         private void VoterRegistration_Load(object sender, EventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"Load event fired. Program items count: {cmb.Items.Count}");
 
             this.Text = "Voter Registration";// ALL forms must have this brosssss
             this.WindowState = FormWindowState.Normal;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.Size = new Size(900, 600); // fixed window size
+            this.Size = new Size(900, 700); // fixed window size(changed to 700 to fit everything)
+            this.AcceptButton = btnRegister;
 
             // === Background ===
             pictureBox1.Dock = DockStyle.Fill;
@@ -198,6 +364,14 @@ namespace IT13VotingAppFinal
             StyleLabel(label4, "Last Name:", 0, 0);
             label4.ForeColor = Color.White;
 
+            // NEW: Program Label
+            StyleLabel(label9, "Program:", 0, 0);
+            label9.ForeColor = Color.White;
+
+            // NEW: Year Level Label
+            StyleLabel(label10, "Year Level:", 0, 0);
+            label10.ForeColor = Color.White;
+
             StyleLabel(label3, "Email:", 0, 0);
             label3.ForeColor = Color.White; 
 
@@ -215,6 +389,18 @@ namespace IT13VotingAppFinal
             StyleTextBox(txtPassword, 0, 0);
             txtPassword.PasswordChar = '*';
 
+            // === NEW: ComboBoxes ===
+            StyleComboBox(cmb, 0, 0);
+            StyleComboBox(comboBox1, 0, 0);
+
+            cmb.Items.Clear();
+            cmb.Items.AddRange(new object[] { "BSIT", "BSCS" });
+            cmb.SelectedIndex = 0;
+
+            comboBox1.Items.Clear();
+            comboBox1.Items.AddRange(new object[] { "1", "2", "3", "4" });
+            comboBox1.SelectedIndex = 0;
+
             // === Buttons ===
             StyleButton(button1, "Login", 0, 0, ColorTranslator.FromHtml("#0A2E5C"), Color.White);
             StyleButton(btnRegister, "Register", 0, 0, Color.White, ColorTranslator.FromHtml("#0D47A1"));
@@ -227,20 +413,6 @@ namespace IT13VotingAppFinal
             lblStatus.BackColor = Color.Transparent;
             lblStatus.AutoSize = true;
             lblStatus.Parent = pictureBox1;
-
-
-            MakeRounded(txtFirstName, 15);
-            MakeRounded(txtLastName, 15);
-            MakeRounded(txtEmail, 15);
-            MakeRounded(txtUsername, 15);
-            MakeRounded(txtPassword, 15);
-
-            MakeRounded(button1, 20);
-            MakeRounded(btnRegister, 20);
-            MakeRounded(btnExit, 20);
-
-                
-
 
 
             // Center everything
@@ -284,6 +456,17 @@ namespace IT13VotingAppFinal
         {
 
         }
+        private void StyleComboBox(ComboBox cmb, int x, int y)
+        {
+            cmb.Size = new Size(200, 30);
+            cmb.Font = new Font("Segoe UI", 12);
+            cmb.Location = new Point(x, y);
+            cmb.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmb.FlatStyle = FlatStyle.Flat;
+            cmb.BackColor = Color.White;
+
+            if (pictureBox1 != null) cmb.Parent = pictureBox1;
+        }
         private void StyleTextBox(TextBox txt, int x, int y)
         {
             txt.Size = new Size(200, 30);
@@ -292,20 +475,7 @@ namespace IT13VotingAppFinal
 
             if (pictureBox1 != null) txt.Parent = pictureBox1;
         }
-        private void MakeRounded(Control ctrl, int radius)
-        {
-            var path = new System.Drawing.Drawing2D.GraphicsPath();
-            path.StartFigure();
-            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
-            path.AddLine(radius, 0, ctrl.Width - radius, 0);
-            path.AddArc(new Rectangle(ctrl.Width - radius, 0, radius, radius), -90, 90);
-            path.AddLine(ctrl.Width, radius, ctrl.Width, ctrl.Height - radius);
-            path.AddArc(new Rectangle(ctrl.Width - radius, ctrl.Height - radius, radius, radius), 0, 90);
-            path.AddLine(ctrl.Width - radius, ctrl.Height, radius, ctrl.Height);
-            path.AddArc(new Rectangle(0, ctrl.Height - radius, radius, radius), 90, 90);
-            path.CloseFigure();
-            ctrl.Region = new Region(path);
-        }
+       
         private void StyleButton(Button btn, string text, int x, int y, Color foreColor, Color backColor)
         {
             btn.Text = text;
@@ -314,9 +484,15 @@ namespace IT13VotingAppFinal
             btn.BackColor = backColor;
             btn.FlatStyle = FlatStyle.Flat;
             btn.FlatAppearance.BorderSize = 0;
-            btn.Size = new Size(100, 40);
+            btn.FlatAppearance.MouseOverBackColor = ControlPaint.Dark(backColor, 0.1f);  // slightly darker on hover
+            btn.FlatAppearance.MouseDownBackColor = ControlPaint.Dark(backColor, 0.2f);  // darker on click
+            btn.FlatAppearance.BorderColor = backColor; // ensure no white edge
+            btn.TabStop = false; // remove blue outline on focus
+            btn.UseVisualStyleBackColor = false; // prevent system color overlay
+            btn.Size = new Size(120, 45);
             btn.Location = new Point(x, y);
             btn.Cursor = Cursors.Hand;
+            btn.Parent = pictureBox1;
         }
      
 
@@ -350,10 +526,78 @@ namespace IT13VotingAppFinal
 
         private void txtPassword_TextChanged(object sender, EventArgs e)
         {
+            string password = txtPassword.Text;
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                lblStatus.Text = "";
+                return;
+            }
+
+            string error;
+            if (ValidatePassword(password, out error))
+            {
+                lblStatus.ForeColor = System.Drawing.Color.Green;
+                lblStatus.Text = "✓ Strong password";
+            }
+            else
+            {
+                lblStatus.ForeColor = System.Drawing.Color.Orange;
+                lblStatus.Text = error;
+            }
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
 
         }
+
+        private void cmb_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtEmail_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtLastName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtFirstName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 
        
     }
-        }
+        
 
