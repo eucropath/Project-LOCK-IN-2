@@ -14,7 +14,7 @@ namespace IT13VotingAppFinal
     public partial class VoterForm : Form
     {
         private ComboBox cmbFilterProgram;
-        private Label lblFilter; // Add this field
+        private Label lblFilter;
 
         public VoterForm()
         {
@@ -98,8 +98,60 @@ namespace IT13VotingAppFinal
 
         private void LoadVoters()
         {
-            var dt = DataAccess.ExecuteProcedureToDataTable("sp_GetAllVoters");
-            dgvVoters.DataSource = dt;
+            try
+            {
+                var dt = DataAccess.ExecuteProcedureToDataTable(
+                    "sp_GetAllVoters",
+                    new MySqlParameter("p_Program", "All")
+                );
+                dgvVoters.DataSource = dt;
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Error loading voters: " + ex.Message);
+            }
+        }
+
+        private void ApplyFilter()
+        {
+            if (cmbFilterProgram == null || cmbFilterProgram.SelectedItem == null)
+            {
+                LoadVoters();
+                return;
+            }
+
+            string selectedProgram = cmbFilterProgram.SelectedItem.ToString();
+
+            try
+            {
+                if (selectedProgram == "All")
+                {
+                    LoadVoters();
+                }
+                else
+                {
+                    // Load all voters
+                    var allData = DataAccess.ExecuteProcedureToDataTable("sp_GetAllVoters");
+
+                    // Check if Program column exists
+                    if (!allData.Columns.Contains("Program"))
+                    {
+                        ShowMessage("Program column not found in the data.");
+                        LoadVoters();
+                        return;
+                    }
+
+                    // Filter using DataView
+                    DataView dv = new DataView(allData);
+                    dv.RowFilter = string.Format("Program = '{0}'", selectedProgram);
+                    dgvVoters.DataSource = dv.ToTable();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Error filtering voters: " + ex.Message);
+                LoadVoters();
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -119,7 +171,7 @@ namespace IT13VotingAppFinal
                    new MySqlParameter("@in_fn", firstName),
                    new MySqlParameter("@in_ln", lastName)
                 );
-                LoadVoters();
+                ApplyFilter();
                 ClearFields();
                 ShowMessage("Voter added successfully.");
             }
@@ -149,7 +201,7 @@ namespace IT13VotingAppFinal
                    new MySqlParameter("@in_fn", firstName),
                    new MySqlParameter("@in_ln", lastName)
                 );
-                LoadVoters();
+                ApplyFilter();
                 ClearFields();
                 ShowMessage("Voter updated successfully.");
             }
@@ -174,7 +226,7 @@ namespace IT13VotingAppFinal
             {
                 DataAccess.ExecuteProcedureNonQuery("sp_DeleteVoter",
                     new MySqlParameter("@in_id", id));
-                LoadVoters();
+                ApplyFilter();
                 ClearFields();
                 ShowMessage("Voter deleted successfully.");
             }
@@ -186,8 +238,11 @@ namespace IT13VotingAppFinal
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
+            if (cmbFilterProgram != null)
+            {
+                cmbFilterProgram.SelectedIndex = 0; // Reset filter to "All"
+            }
             LoadVoters();
-            cmbFilterProgram.SelectedIndex = 0; // Reset filter to "All"
         }
 
         private void btnClear_Click(object sender, EventArgs e)
@@ -213,6 +268,17 @@ namespace IT13VotingAppFinal
 
         private void VoterForm_Load(object sender, EventArgs e)
         {
+            // === HIDE OLD COMBOBOX FROM DESIGNER (if exists) ===
+            try
+            {
+                Control oldCombo = this.Controls["comboBox1"];
+                if (oldCombo != null)
+                {
+                    oldCombo.Visible = false;
+                }
+            }
+            catch { }
+
             // === FORM SETTINGS ===
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Size = new Size(1000, 650);
@@ -296,10 +362,13 @@ namespace IT13VotingAppFinal
             cmbFilterProgram.Items.Add("All");
             cmbFilterProgram.Items.Add("CS");
             cmbFilterProgram.Items.Add("IT");
+            cmbFilterProgram.Items.Add("BSIT");
             cmbFilterProgram.SelectedIndex = 0;
             cmbFilterProgram.Width = 150;
             cmbFilterProgram.Font = new Font("Segoe UI", 10);
-            cmbFilterProgram.SelectedIndexChanged += cmbFilterProgram_SelectedIndexChanged;
+
+            // Wire up the event handler
+            cmbFilterProgram.SelectedIndexChanged += new EventHandler(cmbFilterProgram_SelectedIndexChanged);
 
             // Add controls to form
             this.Controls.Add(cmbFilterProgram);
@@ -307,6 +376,10 @@ namespace IT13VotingAppFinal
             PositionControls();
             LoadVoters();
         }
+
+
+
+
 
         private void cmbFilterProgram_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -316,30 +389,15 @@ namespace IT13VotingAppFinal
 
             try
             {
-                if (selectedProgram == "All")
-                {
-                    LoadVoters(); // Use existing LoadVoters method
-                }
-                else
-                {
-                    // Try stored procedure first
-                    try
-                    {
-                        var dt = DataAccess.ExecuteProcedureToDataTable(
-                            "sp_GetVotersByProgram",
-                            new MySqlParameter("@Program", selectedProgram)
-                        );
-                        dgvVoters.DataSource = dt;
-                    }
-                    catch
-                    {
-                        // If stored procedure doesn't exist, use DataView filtering
-                        var allData = DataAccess.ExecuteProcedureToDataTable("sp_GetAllVoters");
-                        DataView dv = allData.DefaultView;
-                        dv.RowFilter = $"Program = '{selectedProgram}'";
-                        dgvVoters.DataSource = dv.ToTable();
-                    }
-                }
+                // Use proper MySQL parameter name (no @ symbol in stored proc definition)
+                var param = new MySqlParameter("p_Program", selectedProgram);
+
+                var dt = DataAccess.ExecuteProcedureToDataTable(
+                    "sp_GetAllVoters",
+                    param
+                );
+
+                dgvVoters.DataSource = dt;
             }
             catch (Exception ex)
             {
@@ -358,6 +416,7 @@ namespace IT13VotingAppFinal
         private void txtVoterNumber_TextChanged(object sender, EventArgs e) { }
         private void pictureBox1_Click(object sender, EventArgs e) { }
         private void label1_Click_1(object sender, EventArgs e) { }
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) { } // Keep for designer compatibility
 
         private void StyleButton(Button btn, string text, Color backColor, Color foreColor)
         {
